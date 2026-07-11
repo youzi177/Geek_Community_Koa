@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import 'dotenv/config';
 async function send(sendInfo) {
   // 邮箱服务基本配置
   const transporter = nodemailer.createTransport({
@@ -6,8 +7,8 @@ async function send(sendInfo) {
     port: 465, //一般是465 SSL
     secure: true, //465端口需要修改为true  use STARTTLS (upgrade connection to TLS after connecting)
     auth: {
-      user: 'XXXX126.com',
-      pass: 'XXX',
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
     },
   });
   // const sendInfo = {
@@ -27,7 +28,7 @@ async function send(sendInfo) {
   const url = 'https://github.com/youzi177';
   //发送邮件
   const info = await transporter.sendMail({
-    from: '"Geek极客社区" <XXXX126.com>', // sender address
+    from: `"Geek极客社区" ${process.env.SMTP_USER}`, // sender address
     to: sendInfo.email, // list of recipients
     subject: subject, // 邮件标题
     text: `您在Geek极客社区的验证码是${sendInfo.code},验证码过期时间:${sendInfo.expire}`, // plain text body

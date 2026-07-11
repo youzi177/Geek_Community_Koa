@@ -142,3 +142,6 @@ dist/
 
 
 .idea/
+.env
+.env.local
+.env.production
