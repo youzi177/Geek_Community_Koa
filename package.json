@@ -1,0 +1,42 @@
+{
+  "name": "geek_community_koa",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon src/index.js",
+    "watch": "cross-env NODE_ENV=development webpack --config config/webpack.config.dev.js --watch",
+    "debug": "nodemon --inspect=9229 ./dist/server.bundle.js",
+    "dev": "npm-run-all -p watch debug",
+    "bulid": "cross-env NODE_ENV=production webpack --config config/webpack.config.prod.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@koa/cors": "^5.0.0",
+    "koa": "^3.2.1",
+    "koa-body": "^8.0.0",
+    "koa-combine-routers": "^4.0.2",
+    "koa-compose": "^4.1.0",
+    "koa-compress": "^5.2.2",
+    "koa-helmet": "^9.0.0",
+    "koa-json": "^2.0.2",
+    "koa-router": "^14.0.0",
+    "koa-static": "^5.0.0",
+    "svg-captcha": "^1.4.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^8.0.1",
+    "@babel/preset-env": "^8.0.2",
+    "babel-loader": "^10.1.1",
+    "cross-env": "^10.1.0",
+    "nodemon": "^3.1.14",
+    "npm-run-all": "^4.1.5",
+    "terser-webpack-plugin": "^5.6.1",
+    "webpack": "^5.108.4",
+    "webpack-cli": "^7.2.1",
+    "webpack-merge": "^6.0.1",
+    "webpack-node-externals": "^3.0.0"
+  }
+}
