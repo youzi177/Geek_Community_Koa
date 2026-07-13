@@ -4,5 +4,7 @@ const router = new Router();
 router.prefix('/login');
 // 找回密码
 router.post('/forget', loginController.forget);
+//注册
+router.post('/reg', loginController.reg);
 
 export default router;
