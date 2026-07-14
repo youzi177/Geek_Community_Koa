@@ -83,8 +83,4 @@ const getValue = async (key) => {
 // }
 
 // main();
-export default {
-  client,
-  setValue,
-  getValue,
-};
+export { client, setValue, getValue };
