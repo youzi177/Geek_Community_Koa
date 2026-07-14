@@ -6,5 +6,7 @@ router.prefix('/login');
 router.post('/forget', loginController.forget);
 //注册
 router.post('/reg', loginController.reg);
+//登录
+router.post('/login', loginController.login);
 
 export default router;
