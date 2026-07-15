@@ -1,7 +1,7 @@
 import mongoose from '../config/DBHelpler';
 const Schema = mongoose.Schema;
 const UserSchema = new Schema({
-  usename: { type: String },
+  username: { type: String },
   password: { type: String },
   name: { type: String },
 });

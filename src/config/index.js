@@ -5,4 +5,5 @@ const REDIS = {
   port: process.env.REDIS_PORT,
   password: process.env.REDIS_PASSWORD,
 };
-export default { DB_URL, REDIS };
+const JWT_SECRET = process.env.JWT_SECRET;
+export default { DB_URL, REDIS, JWT_SECRET };
