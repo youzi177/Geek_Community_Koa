@@ -86,7 +86,7 @@ class loginController {
       msg.code = '图片验证码错误，请检查';
     }
     ctx.body = {
-      code: 500,
+      code: 401,
       msg: msg,
     };
   }
@@ -106,7 +106,7 @@ class loginController {
       if (!user) {
         ctx.body = {
           code: 404,
-          msg: '请检查账号！',
+          msg: '用户名或者密码错误',
         };
         return;
       }
