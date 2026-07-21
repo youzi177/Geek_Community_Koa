@@ -2,20 +2,20 @@
 export default (ctx, next) => {
   return next().catch((err) => {
     if (err.status === 401) {
-      ctx.status = 401;
+      ctx.status = 401
       ctx.body = {
         code: 401,
-        msg: 'Protected resource, use Authorization header to get access\n',
-      };
+        msg: 'Protected resource, use Authorization header to get access\n'
+      }
     } else {
       // Koa错误
-      ctx.status = err.status || 500;
+      ctx.status = err.status || 500
       ctx.body = {
         code: 500,
-        msg: err.message,
-      };
+        msg: err.message
+      }
       // 开发模式调试
-      console.log(err.stack);
+      console.log(err.stack)
     }
-  });
-};
+  })
+}
