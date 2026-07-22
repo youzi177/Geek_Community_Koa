@@ -27,10 +27,10 @@ const middleware = compose([
   koaBody(),
   cors(),
   json(),
-  helmet(),
+  helmet({ crossOriginResourcePolicy: false }),
   ErrorHandle,
+  statics(path.join(__dirname, '../public')),
   jwt,
-  statics(path.join(__dirname, '../public'))
 ])
 app.use(middleware)
 app.use(router())
