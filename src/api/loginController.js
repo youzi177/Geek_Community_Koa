@@ -102,7 +102,12 @@ class LoginController {
     // 验证码通过
     if (result) {
       const user = await User.findOne({ username: body.username })
-
+      // 剔除敏感数据
+      const userobj = user.toJSON()
+      const arr = ['password', 'username', 'roles']
+      arr.map((item) => {
+        return delete userobj[item]
+      })
       // 查询没有该账号
       if (!user) {
         ctx.body = {
@@ -130,6 +135,7 @@ class LoginController {
         ctx.body = {
           code: 200,
           token,
+          data: userobj,
           msg: '登录成功'
         }
       } else {
