@@ -38,7 +38,20 @@ PostSchema.statics = {
         path: 'uid',
         select: 'name isVip pic'
       })
-  }
+  },
+  // 本周热议
+  getTopWeek: function () {
+    return this.find({
+      created: {
+        $gte: moment().subtract(7, 'days')
+      }
+    }, {
+      // 需要给出的数据
+      answer: 1,
+      title: 1
+    }).sort({ answer: -1 })
+      .limit(15)
+  },
 }
 
 const PostModel = mongoose.model('post', PostSchema)

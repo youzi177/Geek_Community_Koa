@@ -1,6 +1,7 @@
 import Post from '../model/Post'
-
+import Links from '../model/Links'
 class ContentController {
+  // 获取文章列表
   async getPostList (ctx) {
     const body = ctx.query
     const sort = body.sort ? body.sort : 'created'
@@ -28,6 +29,34 @@ class ContentController {
       code: 200,
       data: result,
       msg: '获取文章列表成功'
+    }
+  }
+
+  // 获取友情链接
+  async getLinks (ctx) {
+    const result = await Links.find({ type: 'link' })
+
+    ctx.body = {
+      code: 200,
+      data: result
+    }
+  }
+
+  // 获取温馨通道
+  async getTips (ctx) {
+    const result = await Links.find({ type: 'tips' })
+    ctx.body = {
+      code: 200,
+      data: result
+    }
+  }
+
+  // 本周热议
+  async getTopWeek (ctx) {
+    const result = await Post.getTopWeek()
+    ctx.body = {
+      code: 200,
+      data: result
     }
   }
 }
