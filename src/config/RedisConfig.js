@@ -55,16 +55,16 @@ const setValue = async (key, value, time) => {
   // 如果是一个字符串，那就判断time是否存在，存在就设置过期时间，没有就直接set
   if (typeof value === 'string') {
     if (time) {
-      client.set(key, value, {
+      await client.set(key, value, {
         EX: time
       })
     } else {
-      client.set(key, value)
+      await client.set(key, value)
     }
   }
   // 如果是一个对象，使用hSet，然后判断有没有设置过期时间，有的话再设置过期时间
   if (typeof value === 'object') {
-    client.hSet(key, value)
+    await client.hSet(key, value)
     if (time) {
       await client.expire(key, time)
     }
