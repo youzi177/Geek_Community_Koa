@@ -1,5 +1,5 @@
 import SignModel from '../model/Sign'
-import { getJWTpPayload } from '../common/utils'
+import { getJWTPayload } from '../common/utils'
 import UserModel from '../model/User'
 import moment from 'moment'
 class UserController {
@@ -8,7 +8,7 @@ class UserController {
     let newRecord = {}// 保存用户的签到记录
     let result = {}
     // 1：取用户ID
-    const obj = await getJWTpPayload(ctx.header.authorization)
+    const obj = await getJWTPayload(ctx.header.authorization)
     // 2：查询用户上一次的签到记录
     // record 根据用户 id 查询这个用户最近一次的签到记录
     const record = await SignModel.findByUid(obj._id)// 查uid

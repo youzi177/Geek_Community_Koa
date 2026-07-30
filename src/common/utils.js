@@ -16,7 +16,7 @@ const cheackCode = async (key, value) => {
 }
 
 // 解析token
-const getJWTpPayload = token => {
+const getJWTPayload = token => {
   return jwt.verify(token.split(' ')[1], config.JWT_SECRET)
 }
-export { cheackCode, getJWTpPayload }
+export { cheackCode, getJWTPayload }
