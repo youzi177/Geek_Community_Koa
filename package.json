@@ -6,9 +6,9 @@
   "scripts": {
     "start": "nodemon src/index.js",
     "watch": "cross-env NODE_ENV=development webpack --config config/webpack.config.dev.js --watch",
-    "debug": "nodemon --inspect=9229 ./dist/server.bundle.js",
+    "debug": "nodemon --inspect=9229 --watch dist ./dist/server.bundle.js",
     "dev": "npm-run-all -p watch debug",
-    "bulid": "cross-env NODE_ENV=production webpack --config config/webpack.config.prod.js",
+    "build": "cross-env NODE_ENV=production webpack --config config/webpack.config.prod.js",
     "lint": "eslint src"
   },
   "keywords": [],

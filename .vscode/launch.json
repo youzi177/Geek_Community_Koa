@@ -1,18 +1,33 @@
 {
-  // 使用 IntelliSense 了解相关属性。 
-  // 悬停以查看现有属性的描述。
-  // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
-  
     {
       "type": "node",
       "request": "launch",
-      "name": "启动程序",
+      "name": "Koa Dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
+      "console": "integratedTerminal",
+      "restart": true,
+
+      "autoAttachChildProcesses": true,
       "skipFiles": [
         "<node_internals>/**"
-      ],
-      "program": "${workspaceFolder}\\src\\common\\utils.js"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach Koa Debug",
+      "port": 9229,
+      "restart": true,
+     
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
     }
   ]
 }
