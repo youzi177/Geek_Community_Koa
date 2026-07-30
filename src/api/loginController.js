@@ -126,7 +126,7 @@ class LoginController {
       if (chekuserPasword) {
         // 生成Tonken,有效期1d=>1天
         const token = jsonwebtoken.sign(
-          { _id: '_xiaofeng' },
+          { _id: userobj._id },
           config.JWT_SECRET,
           {
             expiresIn: '1d'
