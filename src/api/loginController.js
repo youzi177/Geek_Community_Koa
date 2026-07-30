@@ -6,6 +6,7 @@ import { cheackCode } from '../common/utils'
 import jsonwebtoken from 'jsonwebtoken'
 import config from '../config'
 import bcrypt from 'bcryptjs'
+import SignModel from '../model/Sign'
 class LoginController {
   // 忘记密码
   async forget (ctx) {
@@ -132,6 +133,19 @@ class LoginController {
             expiresIn: '1d'
           }
         )
+        // 加入isSign用户是否签到属性
+        const signRecord = await SignModel.findByUid(userobj._id)// 查询有没有签到记录
+        if (signRecord !== null) {
+          if (moment(signRecord.created).format('YYYY-MM-DD') === moment().format('YYYY-MM-DD')) {
+            userobj.isSign = true
+          } else {
+            // 有签到记录但是今天没有签到
+            userobj.isSign = false
+          }
+        } else {
+          // 没有签到记录
+          userobj.isSign = false
+        }
         ctx.body = {
           code: 200,
           token,
