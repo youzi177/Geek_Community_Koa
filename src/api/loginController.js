@@ -142,6 +142,9 @@ class LoginController {
             // 有签到记录但是今天没有签到
             userobj.isSign = false
           }
+          // 返回签到的时间
+          userobj.lastSign = signRecord.created
+          console.log(userobj.lastSign)
         } else {
           // 没有签到记录
           userobj.isSign = false
