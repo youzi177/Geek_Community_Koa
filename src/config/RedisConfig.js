@@ -10,14 +10,13 @@ const client = createClient({
     connectTimeout: 5000, // 超时30秒
     // 重连策略
     reconnectStrategy: (retries, cause) => {
-      // if (cause.code === 'ECONNREFUSED') {
-      //   return new Error('Redis server refused connection')
+      // 大于10次就放弃
+      // if (retries > 10) {
+      //   return new Error('Redis retry exhausted')
       // }
-      if (retries > 10) {
-        return new Error('Redis retry exhausted')
-      }
+      console.log(`Redis第${retries}次重连`)
       // 重连间隔
-      return Math.min(retries * 100, 3000)
+      return Math.min(retries * 100, 30000)
     }
   },
   password: config.REDIS.password || undefined
@@ -40,12 +39,15 @@ client.on('reconnecting', () => {
 })
 // 连接redis
 // await client.connect()
-try {
-  await client.connect()
-  console.log('Redis 连接成功')
-} catch (err) {
-  console.error('Redis 初次连接失败:', err.message)
-}
+// try {
+//   await client.connect()
+//   console.log('Redis 连接成功')
+// } catch (err) {
+//   console.error('Redis 初次连接失败:', err.message)
+// }
+client.connect().catch(err => {
+  console.error('Redis initial connection error:', err)
+})
 // 设置值
 const setValue = async (key, value, time) => {
   // 如果是空的，就直接返回，不存
