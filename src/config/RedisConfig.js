@@ -85,6 +85,19 @@ const getValue = async (key) => {
     return client.get(key)
   }
 }
+// 删除值
+const deleteValue = async (key) => {
+  if (!key) {
+    return false
+  }
+
+  const result = await client.del(key)
+
+  // result:
+  // 1 删除成功
+  // 0 key不存在
+  return result > 0
+}
 // async function main() {
 //   await client.connect();
 //   await setValue('key', { name: '小封鸭', age: '18' }, 20);
@@ -93,4 +106,4 @@ const getValue = async (key) => {
 // }
 
 // main();
-export { client, setValue, getValue }
+export { client, setValue, getValue, deleteValue }

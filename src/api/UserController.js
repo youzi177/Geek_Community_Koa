@@ -2,6 +2,12 @@ import SignModel from '../model/Sign'
 import { getJWTPayload } from '../common/utils'
 import UserModel from '../model/User'
 import moment from 'moment'
+import send from '../config/MailConfig'
+import { v4 as uuidv4 } from 'uuid'
+import { getValue, setValue } from '../config/RedisConfig'
+import jwt from 'jsonwebtoken'
+import config from '../config'
+
 class UserController {
   // 用户签到
   async userSign (ctx) {
@@ -111,6 +117,93 @@ class UserController {
       msg: '请求成功',
       ...result,
       lastSign: newRecord.created// 签到的时候也要返回签到时间
+    }
+  }
+
+  // 更新用户基本信息接口
+  async updateUserInfo (ctx) {
+    const { body } = ctx.request
+    const obj = await getJWTPayload(ctx.header.authorization)
+    // 判断用户是都修改了邮箱
+    const user = await UserModel.findOne({ _id: obj._id })
+    const msg = {}// veecadate错误信息
+    let msg1 = ''
+    if (body.username && body.username !== user.username) {
+      // 判断用户新邮箱是否有人注册
+      const tmpUser = await UserModel.findOne({ username: body.username })
+      if (tmpUser && tmpUser.password) {
+        msg.username = '此邮箱已经被注册,请登录'
+        ctx.body = {
+          code: 501,
+          msg
+        }
+        return
+      }
+      // 用户修改了邮箱
+      // 发送reset邮件
+      const key = uuidv4()
+      // 30分钟（UUID、JWT30分钟，过期时间30分钟）
+      setValue(key, jwt.sign({ _id: obj._id }, config.JWT_SECRET, {
+        expiresIn: '30m'
+      }), 30 * 60)
+      await send({
+        type: 'email',
+        // 邮箱的链接需要的参数
+        data: {
+          key,
+          username: body.username
+        },
+        code: '', // 注册的时候才需要
+        expire: moment().add(30, 'minutes').format('YYYY-MM-DD HH:mm:ss'),
+        email: user.username, // 给用户原来的邮箱发信息
+        user: user.name
+      })
+      msg1 = '更新基本资料成功，账号修改需要邮件确认，请查收邮件！'
+    }
+    // 查询昵称name是否注册
+    const user2 = await UserModel.findOne({ name: body.name })
+    console.log(' body.name', body.name)
+    if (user2 !== null && typeof user2.name !== 'undefined') {
+      msg.name = '此昵称已经被使用，请修改'
+      ctx.body = {
+        code: 501,
+        msg
+      }
+      return
+    }
+    // 为了接口通用，但是又不想修改敏感数据，所以这里删除掉一些敏感字段，确保不能修改
+    const arr = ['username', 'mobile', 'password']
+    arr.map((item) => delete body[item])
+    const result = await UserModel.updateOne({
+      _id: obj._id
+    }, body)
+    //  matchedCount是更新一条，acknowledged是否成功
+    if (result.matchedCount === 1 && result.acknowledged) {
+      ctx.body = {
+        code: 200,
+        msg: msg1 === '' ? '更新成功' : msg1
+      }
+    } else {
+      ctx.body = {
+        code: 500,
+        msg: '更新失败'
+      }
+    }
+  }
+
+  // 更新用户名，当用户修改邮箱用户名后，点击邮件修改邮箱，就需要请求该接口
+  async updateUsername (ctx) {
+    const body = ctx.query
+    if (body.key) {
+      const token = await getValue(body.key)
+      const obj = getJWTPayload('Bearer ' + token)
+      await UserModel.updateOne({ _id: obj._id }, {
+        username: body.username
+      })
+      ctx.body = {
+        code: 200,
+        msg: '更新用户名成功'
+      }
     }
   }
 }

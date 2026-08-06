@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon src/index.js",
+    "build:dev": "cross-env NODE_ENV=development webpack --config config/webpack.config.dev.js",
     "watch": "cross-env NODE_ENV=development webpack --config config/webpack.config.dev.js --watch",
-    "debug": "nodemon --inspect=9229 --watch dist ./dist/server.bundle.js",
-    "dev": "npm-run-all -p watch debug",
+    "debug": "nodemon --inspect=9229 --delay 1000ms ./dist/server.bundle.js",
+    "dev": "npm-run-all build:dev && npm-run-all -p watch debug",
     "build": "cross-env NODE_ENV=production webpack --config config/webpack.config.prod.js",
     "lint": "eslint src"
   },
@@ -34,7 +35,8 @@
     "nodemailer": "^9.0.3",
     "redis": "^6.1.0",
     "saslprep": "^1.0.3",
-    "svg-captcha": "^1.4.0"
+    "svg-captcha": "^1.4.0",
+    "uuid": "^14.0.1"
   },
   "devDependencies": {
     "@babel/core": "^8.0.1",

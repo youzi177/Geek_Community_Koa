@@ -8,5 +8,6 @@ router.post('/forget', LoginController.forget)
 router.post('/reg', LoginController.reg)
 // 登录
 router.post('/login', LoginController.login)
-
+// 重置密码
+router.post('/reset', LoginController.reset)
 export default router

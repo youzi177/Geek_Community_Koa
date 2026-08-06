@@ -1,5 +1,7 @@
 import nodemailer from 'nodemailer'
 import 'dotenv/config'
+import config from './index'
+import qs from 'qs'
 async function send (sendInfo) {
   // 邮箱服务基本配置
   const transporter = nodemailer.createTransport({
@@ -11,36 +13,75 @@ async function send (sendInfo) {
       pass: process.env.SMTP_PASS
     }
   })
-  // const sendInfo = {
-  //   code: '1234',
-  //   expire: '2026-07-11',
-  //   email: '1770813141@qq.com',
-  //   user: 'Geek极客',
-  // };
-  // 邮件标题(测试的，后续会用真实数据)
+  // 邮件标题
   let subject = ''
-  if (sendInfo.user !== '') {
-    subject = `您好${sendInfo.user}《Geek极客社区》验证码`
+  let text = ''
+  let content = ''
+  let buttonText = ''
+  let showButton = false
+  const baseUrl = config.baseUrl
+  let router = ''
+  if (sendInfo.user !== '' && sendInfo.type === 'emailCode') {
+    // 注册验证码
+    subject = `您好${sendInfo.user}《Fluff轻羽技术社区》验证码`
+    text = `您在Fluff轻羽技术社区的验证码是${sendInfo.code},验证码过期时间:${sendInfo.expire}`
+    content = `
+    <div>您好，${sendInfo.user}开发者，您的验证码是：</div>
+    <div style="font-size:30px;color:#009e94;margin:20px 0;">
+      ${sendInfo.code}
+    </div>
+    <div>验证码过期时间：${sendInfo.expire}</div>
+  `
+    router = ''
+  } else if (sendInfo.type === 'email') {
+    // 修改新邮箱确认链接
+    subject = '《Fluff轻羽技术社区》确认修改账号邮箱链接'
+    text = `您在Fluff轻羽技术社区的修改了账号邮箱,重置链接过期时间:${sendInfo.expire}`
+    content = `
+    <div>您好，${sendInfo.user}开发者，请点击下面按钮确认修改邮箱：</div>
+  `
+    buttonText = '确认修改邮箱'
+    showButton = true
+    router = 'confirm'
   } else {
-    subject = '《Geek极客社区》验证码'
+    // 修改密码链接
+    subject = '《Fluff轻羽技术社区》重置密码链接'
+    text = `您在Fluff轻羽技术社区的修改了账号密码,重置链接过期时间:${sendInfo.expire}`
+    content = `
+    <div>
+      您好，${sendInfo.user}开发者，重置链接有效时间30分钟，
+      请在${sendInfo.expire}之前重置您的密码：
+    </div>
+  `
+    buttonText = '立即重置密码'
+    showButton = true
+    router = 'reset'
   }
-  // 邮件的连接：(测试的，后续会用真实数据)
-  const url = 'https://github.com/youzi177'
+  const url = `${baseUrl}/${router}?` + qs.stringify(sendInfo.data)
+
   // 发送邮件
   const info = await transporter.sendMail({
-    from: `"Geek极客社区" ${process.env.SMTP_USER}`, // sender address
+    from: `"Fluff轻羽技术社区" ${process.env.SMTP_USER}`, // sender address
     to: sendInfo.email, // list of recipients
     subject, // 邮件标题
-    text: `您在Geek极客社区的验证码是${sendInfo.code},验证码过期时间:${sendInfo.expire}`, // plain text body
+    text, // plain text body
     html: `  <div
     style="border: 1px solid #dcdcdc;color: #676767;width: 600px; margin: 0 auto; padding-bottom: 50px;position: relative;">
     <div
       style="height: 60px; background: #393d49; line-height: 60px; color: #58a36f; font-size: 18px;padding-left: 10px;">
-      Geek极客社区——欢迎来到官方社区</div>
+     Fluff轻羽技术社区——欢迎来到官方社区</div>
     <div style="padding: 25px">
-      <div>您好，${sendInfo.user}开发者，重置链接有效时间30分钟，请在${sendInfo.expire}之前重置您的密码：</div>
-      <a href="${url}"
-        style="padding: 10px 20px; color: #fff; background: #009e94; display: inline-block;margin: 15px 0;">立即重置密码</a>
+     ${content}
+      ${
+      showButton
+        ? `
+        <a href="${url}"
+        style="padding:10px 20px;color:#fff;background:#009e94;display:inline-block;margin:15px 0;">
+          ${buttonText}
+        </a>
+        `
+        : ''
+    }
       <div style="padding: 5px; background: #f2f2f2;">如果该邮件不是由你本人操作，请勿进行激活！否则你的邮箱将会被他人绑定。</div>
     </div>
     <div
