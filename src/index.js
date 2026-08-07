@@ -24,11 +24,20 @@ const jwt = JWT({ secret: config.JWT_SECRET }).unless({
 // 中间件
 // compose集合中间件
 const middleware = compose([
-  koaBody(),
+  ErrorHandle,
+  koaBody({
+    multipart: true,
+    formidable: {
+      keepExtensions: true, // 保持后缀
+      maxFileSize: 5 * 1024 * 1024// 5M,这是后端保险,只要传过来判断是大于5M的直接取消连接,防止恶意上传
+    },
+
+  }),
+
   cors(),
   json(),
   helmet({ crossOriginResourcePolicy: false }),
-  ErrorHandle,
+
   statics(path.join(__dirname, '../public')),
   jwt,
 ])
