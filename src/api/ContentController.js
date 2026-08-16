@@ -4,7 +4,10 @@ import fs from 'fs'
 import { v4 as uuidv4 } from 'uuid'
 import moment from 'moment'
 import config from '../config'
-import { dirExists } from '../common/utils'
+import { dirExists, cheackCode, getJWTPayload } from '../common/utils'
+import UserModel from '../model/User'
+import PostModel from '../model/Post'
+
 class ContentController {
   // 获取文章列表
   async getPostList (ctx) {
@@ -121,6 +124,51 @@ class ContentController {
       ctx.body = {
         code: 500,
         msg: '文件存储失败：' + error.message
+      }
+    }
+  }
+
+  // 发表新帖
+  async addPost (ctx) {
+    const { body } = ctx.request
+    // 验证码验证
+    const sid = body.sid // 图片验证码K值
+    const code = body.code // 图片验证码
+    // 验证图片验证码的时效性、正确性
+    const result = await cheackCode(sid, code)
+    if (result) {
+      const obj = await getJWTPayload(ctx.header.authorization)
+      // 判断用户的积分是否足够发帖，
+      const user = await UserModel.findById({ _id: obj._id })
+      if (user.favs < body.fav) {
+        ctx.body = {
+          code: 501,
+          msg: '积分不足'
+        }
+      } else {
+        // 减去积分
+        await UserModel.updateOne(
+          { _id: obj._id },
+          {
+            $inc: {
+              favs: -body.fav
+            }
+          }
+        )
+        // 保存新帖
+        const newPost = new PostModel(body)
+        newPost.uid = obj._id
+        const result = await newPost.save()
+        ctx.body = {
+          code: 200,
+          data: result,
+          msg: '成功保存文章'
+        }
+      }
+    } else {
+      ctx.body = {
+        code: 401,
+        msg: '图片验证码错误，请检查'
       }
     }
   }
