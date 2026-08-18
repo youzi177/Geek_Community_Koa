@@ -33,6 +33,7 @@ class ContentController {
       options.tags = { $elemMatch: { name: body.tag } }
     }
     const result = await Post.getList(options, sort, page, limit)
+
     ctx.body = {
       code: 200,
       data: result,
@@ -170,6 +171,25 @@ class ContentController {
         code: 401,
         msg: '图片验证码错误，请检查'
       }
+    }
+  }
+
+  // 获取文章详情
+  async getDetail (ctx) {
+    const parms = ctx.query
+    if (!parms.tid) {
+      ctx.body = {
+        code: 500,
+        msg: '文章标题为空',
+      }
+      return
+    }
+    const result = await Post.findByTid(parms.tid)
+    // const result = rename(post.toJSON(), 'uid', 'user')// 把查询的uid改名为user
+    ctx.body = {
+      code: 200,
+      data: result,
+      msg: '成功获取文章详情'
     }
   }
 }

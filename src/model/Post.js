@@ -60,6 +60,13 @@ PostSchema.statics = {
     }).sort({ answer: -1 })
       .limit(15)
   },
+  // 查询文章详情
+  findByTid: function (id) {
+    return this.findOne({ _id: id }).populate({
+      path: 'uid',
+      select: 'name pic isVip _id'
+    })
+  }
 }
 
 const PostModel = mongoose.model('post', PostSchema)

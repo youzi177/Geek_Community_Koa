@@ -53,4 +53,17 @@ const dirExists = async (dir) => {
     return false
   }
 }
-export { cheackCode, getJWTPayload, dirExists }
+/**
+ * 重新命名
+ * @param {*} obj 一个对象
+ * @param {*} key 要修改的值
+ * @param {*} newval 新值
+ */
+const rename = (obj, key, newkey) => {
+  if (Object.keys(obj).indexOf(key) !== 1) {
+    obj[newkey] = obj[key]
+    delete obj[key]
+  }
+  return obj
+}
+export { cheackCode, getJWTPayload, dirExists, rename }

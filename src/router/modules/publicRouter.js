@@ -16,4 +16,6 @@ router.get('/links', contentController.getLinks)
 router.get('/topWeek', contentController.getTopWeek)
 // 确认修改邮件
 router.get('/reset-email', UserController.updateUsername)
+// 获取文章详情
+router.get('/content/detail', contentController.getDetail)
 export default router
