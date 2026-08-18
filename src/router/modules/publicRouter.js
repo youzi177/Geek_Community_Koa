@@ -2,6 +2,7 @@ import Router from 'koa-router'
 import PublicController from '../../api/PublicController.js'
 import contentController from '../../api/ContentController'
 import UserController from '../../api/UserController.js'
+import commentsController from '../../api/CommentsController.js'
 const router = new Router()
 router.prefix('/public')
 // 获取图片验证码
@@ -18,4 +19,6 @@ router.get('/topWeek', contentController.getTopWeek)
 router.get('/reset-email', UserController.updateUsername)
 // 获取文章详情
 router.get('/content/detail', contentController.getDetail)
+// 获取评论列表
+router.get('/comments', commentsController.getComments)
 export default router
