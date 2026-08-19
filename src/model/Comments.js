@@ -37,14 +37,17 @@ CommentsSchema.statics = {
   findByTid: function (id) {
     return this.find({ tid: id })
   },
+  findByCid: function (id) {
+    return this.findOne({ _id: id })
+  },
   // 查询文章评论列表
   getCommentsList: function (id, page, limit) {
     return this.find({
       tid: id
     }).populate({
       path: 'cuid',
-      select: '_id name isVip pic',
-      match: { status: { $eq: '0' } }// status-》是否禁用 判断eq，是否为0，是则查询出来
+      select: '_id name isVip pic status',
+      // match: { status: { $eq: '0' } }// status-》是否禁用 判断eq，是否为0，是则查询出来
     }).populate({
       path: 'tid',
       select: '_id title status'

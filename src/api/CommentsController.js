@@ -1,7 +1,21 @@
 import Comments from '../model/Comments'
-// import Post from '../model/Post'
-// import User from '../model/User'
+import Post from '../model/Post'
+import User from '../model/User'
 import { cheackCode, getJWTPayload } from '../common/utils'
+// 判断用户是否被禁言
+const canReply = async (ctx) => {
+  let result = false
+  const obj = await getJWTPayload(ctx.header.authorization)
+  if (typeof obj._id === 'undefined') {
+    return result
+  } else {
+    const user = await User.findByID(obj._id)
+    if (user.status === '0') {
+      result = true
+    }
+    return result
+  }
+}
 class CommentsController {
   // 获取评论列表
   async getComments (ctx) {
@@ -21,6 +35,14 @@ class CommentsController {
 
   // 添加评论
   async addComments (ctx) {
+    const check = await canReply(ctx)
+    if (!check) {
+      ctx.body = {
+        code: 500,
+        msg: '用户已经被禁言'
+      }
+      return
+    }
     const { body } = ctx.request
     // 验证码验证
     const sid = body.sid // 图片验证码K值
@@ -47,12 +69,81 @@ class CommentsController {
 
   // 更新评论
   async updateComment (ctx) {
+    const check = await canReply(ctx)
+    if (!check) {
+      ctx.body = {
+        code: 500,
+        msg: '用户已经被禁言'
+      }
+      return
+    }
     const { body } = ctx.request
     const result = await Comments.updateOne({ _id: body.cid }, { $set: body })
     ctx.body = {
       code: 200,
       data: result,
       msg: '修改成功'
+    }
+  }
+
+  // 采纳最佳答案
+  async setBest (ctx) {
+    const params = ctx.query
+    // 用户权限判断，判断是否有权采纳，否则谁都可以采纳自己都为最佳答案，post.uid -> header.id
+    const obj = await getJWTPayload(ctx.header.authorization)
+    if (typeof obj === 'undefined' && obj._id !== '') {
+      ctx.body = {
+        code: '401',
+        msg: '用户未登录，或者未授权'
+      }
+      return
+    }
+    const post = await Post.findOne({ _id: params.tid })
+    if (post.uid === obj._id && post.isEnd === '0') {
+      // 是作者本人，并且没有结帖，可以设置isBest
+      // 贴子更新为已结
+      const result = await Post.updateOne({ _id: params.tid }, {
+        $set: {
+          isEnd: '1'
+        }
+      })
+      // 评论更新为采纳
+      const result1 = await Comments.updateOne({ _id: params.cid }, {
+        $set: {
+          isBest: '1'
+        }
+      })
+      // console.log('result', result)
+      // console.log('result1', result1)
+      //  matchedCount是更新一条，acknowledged是否成功 api变化了，result.ok变成result.acknowledged返回的true
+      if (result.acknowledged && result1.acknowledged) {
+        // 把积分值给采纳的用户
+        const comment = await Comments.findByCid(params.cid)
+        const result2 = await User.updateOne({ _id: comment.cuid }, { $inc: { favs: parseInt(post.fav) } })
+        if (result2.acknowledged) {
+          ctx.body = {
+            code: 200,
+            msg: '采纳成功',
+            data: result2
+          }
+        } else {
+          ctx.body = {
+            code: 500,
+            msg: '设置最佳答案-更新用户失败'
+          }
+        }
+      } else {
+        ctx.body = {
+          code: 500,
+          msg: '采纳失败',
+          data: { ...result, ...result1 }
+        }
+      }
+    } else {
+      ctx.body = {
+        code: 500,
+        msg: '贴子已经结帖'
+      }
     }
   }
 }
