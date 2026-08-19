@@ -44,6 +44,17 @@ class CommentsController {
       msg: '评论成功'
     }
   }
+
+  // 更新评论
+  async updateComment (ctx) {
+    const { body } = ctx.request
+    const result = await Comments.updateOne({ _id: body.cid }, { $set: body })
+    ctx.body = {
+      code: 200,
+      data: result,
+      msg: '修改成功'
+    }
+  }
 }
 
 export default new CommentsController()
