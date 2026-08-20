@@ -203,5 +203,122 @@ class ContentController {
       }
     }
   }
+
+  // 更新贴子V1，存在安全风险
+  // async updatePost (ctx) {
+  //   const { body } = ctx.request
+  //   // 验证码验证
+  //   const sid = body.sid // 图片验证码K值
+  //   const code = body.code // 图片验证码
+  //   // 验证图片验证码的时效性、正确性
+  //   const result = await cheackCode(sid, code)
+  //   if (result) {
+  //     const obj = await getJWTPayload(ctx.header.authorization)
+  //     // 判断贴子的作者是否为本人
+  //     // 判断贴子是都结帖
+  //     const post = await Post.findOne({ _id: body.tid })
+  //     if (post.uid === obj._id && post.isEnd === '0') {
+  //       // 存在风险
+  //       const result = await Post.updateOne({ _id: body.tid }, body)
+  //       if (result.acknowledged) {
+  //         ctx.body = {
+  //           code: 200,
+  //           data: result,
+  //           msg: '更新贴子成功'
+  //         }
+  //       } else {
+  //         ctx.body = {
+  //           code: 500,
+  //           msg: '更新贴子失败'
+  //         }
+  //       }
+  //     } else {
+  //       ctx.body = {
+  //         code: 401,
+  //         msg: '没有操作的权限'
+  //       }
+  //     }
+  //   } else {
+  //     ctx.body = {
+  //       code: 401,
+  //       msg: '图片验证码错误，请检查'
+  //     }
+  //   }
+  // }
+  // 更新贴子V2
+  async updatePost (ctx) {
+    const { body } = ctx.request
+    // 取出图片验证码 K 值和用户输入的验证码
+    const sid = body.sid
+    const code = body.code
+    // 验证图片验证码的时效性、正确性
+    const result = await cheackCode(sid, code)
+    if (!result) {
+      ctx.body = { code: 401, msg: '图片验证码错误，请检查' }
+      return
+    }
+    // 从 JWT 中解析当前登录用户信息
+    const obj = await getJWTPayload(ctx.header.authorization)
+    // 1. 只允许更新这些字段，防止批量赋值漏洞
+    const allowedFields = ['title', 'content'] // 根据业务定义
+    const updateData = {}
+    for (const key of allowedFields) {
+    // 只提取白名单中前端实际传了的字段
+      if (body[key] !== undefined) {
+        updateData[key] = body[key]
+      }
+    }
+    // 如果白名单字段一个都没传，直接返回参数错误
+    if (Object.keys(updateData).length === 0) {
+      ctx.body = { code: 400, msg: '没有需要更新的字段' }
+      return
+    }
+    // 2. 更新时同时校验帖子 id、作者 id、未结帖，避免竞态条件
+    const updateResult = await Post.updateOne(
+      {
+        _id: body.tid,
+        uid: obj._id,   // 只有作者本人才能改
+        isEnd: '0'      // 只有未结帖才能改
+      },
+      { $set: updateData },
+      { runValidators: true } // 触发 Mongoose Schema 校验
+    )
+    // 3. 匹配不到文档，说明更新失败
+    if (updateResult.matchedCount === 0) {
+    // 进一步区分：是帖子不存在，还是无权限/已结帖
+      const postExists = await Post.exists({ _id: body.tid })
+      if (!postExists) {
+      // 帖子 id 无效或已删除
+        ctx.body = {
+          code: 404,
+          msg: '帖子不存在'
+        }
+      } else {
+      // 帖子存在，但条件不满足：不是作者或已经结帖
+        ctx.body = {
+          code: 401,
+          msg: '没有操作的权限或帖子已结帖'
+        }
+      }
+      return
+    }
+    // 4. 匹配到了帖子，但没有任何字段发生变化
+    //    例如提交的内容和原内容完全一致
+    if (updateResult.modifiedCount === 0) {
+      ctx.body = {
+        code: 200,
+        data: updateResult,
+        msg: '内容没有发生变化'
+      }
+      return
+    }
+
+    // 5. 真正更新成功
+    ctx.body = {
+      code: 200,
+      data: updateResult,
+      msg: '更新帖子成功'
+    }
+  }
 }
 export default new ContentController()
