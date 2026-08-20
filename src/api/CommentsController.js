@@ -2,6 +2,7 @@ import Comments from '../model/Comments'
 import Post from '../model/Post'
 import User from '../model/User'
 import { cheackCode, getJWTPayload } from '../common/utils'
+import CommentsHands from '../model/CommentsHands'
 // 判断用户是否被禁言
 const canReply = async (ctx) => {
   let result = false
@@ -23,7 +24,25 @@ class CommentsController {
     const tid = params.tid
     const page = params.page ? params.page : 0
     const limit = params.limit ? params.limit : 0
-    const result = await Comments.getCommentsList(tid, page, limit)
+    let result = await Comments.getCommentsList(tid, page, limit)
+    // 判断用户是否已经登录，已经登录才去判断点赞信息
+    const auth = ctx.header.authorization
+    // console.log('🚀 ~ CommentsController ~ getComments ~ auth:', auth)
+    const obj = auth ? await getJWTPayload(auth) : {}
+    // console.log('🚀 ~ CommentsController ~ getComments ~ obj:', obj)
+    if (obj._id) {
+      result = result.map(item => item.toJSON())
+      for (let i = 0; i < result.length; i++) {
+        const item = result[i]
+        item.handed = '0'
+        const commentsHands = await CommentsHands.findOne({ cid: item._id, uid: obj._id })
+        if (commentsHands && commentsHands.cid) {
+          if (commentsHands.uid === obj._id) {
+            item.handed = '1'
+          }
+        }
+      }
+    }
     const total = await Comments.queryCount(tid)
     ctx.body = {
       code: 200,
@@ -143,6 +162,47 @@ class CommentsController {
       ctx.body = {
         code: 500,
         msg: '贴子已经结帖'
+      }
+    }
+  }
+
+  // 点赞评论
+  async setHands (ctx) {
+    const params = ctx.query
+    const obj = await getJWTPayload(ctx.header.authorization)
+    // 判断用户是否已经点赞
+    const temp = await CommentsHands.find({ cid: params.cid, uid: obj._id })
+    // console.log('🚀 ~ CommentsController ~ setHands ~ temp:', temp)
+
+    if (temp.length > 0) {
+      ctx.body = {
+        code: 500,
+        msg: '您已经点赞，请勿重复点赞'
+      }
+      return
+    }
+    // 新增一条点赞记录
+    const newHands = new CommentsHands({
+      cid: params.cid,
+      uid: obj._id
+    })
+    const data = await newHands.save()
+    // 更新comments表中对应记录的hands信息+1
+    const result = await Comments.updateOne({ _id: params.cid }, {
+      $inc: {
+        hands: 1
+      }
+    })
+    if (result.acknowledged) {
+      ctx.body = {
+        code: 200,
+        data,
+        msg: '点赞成功'
+      }
+    } else {
+      ctx.body = {
+        code: 500,
+        msg: '点赞失败'
       }
     }
   }

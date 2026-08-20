@@ -8,4 +8,6 @@ router.post('/reply', commentsController.addComments)
 router.post('/update', commentsController.updateComment)
 // 采纳最佳答案
 router.get('/accept', commentsController.setBest)
+// 点赞评论
+router.get('/hands', commentsController.setHands)
 export default router
