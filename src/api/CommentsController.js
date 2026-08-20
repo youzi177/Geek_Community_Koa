@@ -79,10 +79,23 @@ class CommentsController {
     const obj = await getJWTPayload(ctx.header.authorization)
     newComment.cuid = obj._id
     const comment = await newComment.save()
-    ctx.body = {
-      code: 200,
-      data: comment,
-      msg: '评论成功'
+    // 更新评论数
+    const updatePostresult = await Post.updateOne({ _id: body.tid }, {
+      $inc: {
+        answer: 1
+      }
+    })
+    if (comment._id && updatePostresult.acknowledged) {
+      ctx.body = {
+        code: 200,
+        data: comment,
+        msg: '评论成功'
+      }
+    } else {
+      ctx.body = {
+        code: 500,
+        msg: '评论失败'
+      }
     }
   }
 

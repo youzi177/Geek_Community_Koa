@@ -184,12 +184,23 @@ class ContentController {
       }
       return
     }
-    const result = await Post.findByTid(parms.tid)
-    // const result = rename(post.toJSON(), 'uid', 'user')// 把查询的uid改名为user
-    ctx.body = {
-      code: 200,
-      data: result,
-      msg: '成功获取文章详情'
+    // 更新文章阅读计数
+    const result = await Post.updateOne({ _id: parms.tid }, {
+      $inc: { reads: 1 }
+    })
+    const post = await Post.findByTid(parms.tid)
+    if (post._id && result.acknowledged) {
+      // const result = rename(post.toJSON(), 'uid', 'user')// 把查询的uid改名为user
+      ctx.body = {
+        code: 200,
+        data: post,
+        msg: '成功获取文章详情'
+      }
+    } else {
+      ctx.body = {
+        code: 500,
+        msg: '获取文章详情失败'
+      }
     }
   }
 }
