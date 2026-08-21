@@ -8,4 +8,8 @@ router.get('/fav', UserController.userSign)
 router.post('/basic', UserController.updateUserInfo)
 // 修改密码
 router.post('/changePassword', UserController.changePassword)
+// 设置取消收藏
+router.get('/set-collect', UserController.setCollect)
+// 获取收藏列表
+router.get('/collect', UserController.userSign)
 export default router

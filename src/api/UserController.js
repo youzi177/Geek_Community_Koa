@@ -1,6 +1,7 @@
 import SignModel from '../model/Sign'
 import { getJWTPayload } from '../common/utils'
 import UserModel from '../model/User'
+import UserCollect from '../model/UserCollect'
 import moment from 'moment'
 import send from '../config/MailConfig'
 import { v4 as uuidv4 } from 'uuid'
@@ -226,6 +227,43 @@ class UserController {
       ctx.body = {
         code: 500,
         msg: '更新密码错误，请检查输入当前密码是否正确！'
+      }
+    }
+  }
+
+  // 设置收藏
+  async setCollect (ctx) {
+    const params = ctx.query
+    if (typeof ctx.header.authorization !== 'undefined' && ctx.header.authorization !== '') {
+      const obj = await getJWTPayload(ctx.header.authorization)
+      // 注意：ctx.query 里的值都是字符串
+      const isFav = String(params.isFav).toLowerCase() === 'true'
+      if (isFav) {
+      // 用户收藏过贴子,点击就是取消收藏
+        await UserCollect.deleteOne({ uid: obj._id, tid: params.tid })
+        ctx.body = {
+          code: 200,
+          msg: '取消收藏成功'
+        }
+      } else {
+        const newCollect = new UserCollect({
+          uid: obj._id,
+          tid: params.tid,
+          title: params.title
+
+        })
+        const result = await newCollect.save()
+        if (result.uid) {
+          ctx.body = {
+            code: 200,
+            msg: '收藏成功'
+          }
+        }
+      }
+    } else {
+      ctx.body = {
+        code: 500,
+        msg: '非法操作'
       }
     }
   }

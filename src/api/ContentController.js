@@ -7,6 +7,7 @@ import config from '../config'
 import { dirExists, cheackCode, getJWTPayload } from '../common/utils'
 import UserModel from '../model/User'
 import PostModel from '../model/Post'
+import UserCollect from '../model/UserCollect'
 
 class ContentController {
   // 获取文章列表
@@ -189,11 +190,27 @@ class ContentController {
       $inc: { reads: 1 }
     })
     const post = await Post.findByTid(parms.tid)
+    // 判断用户是否登录
+    let isFav = false
+    if (typeof ctx.header.authorization !== 'undefined' && ctx.header.authorization !== '') {
+      const obj = await getJWTPayload(ctx.header.authorization)
+      const userCollert = await UserCollect.findOne({
+        uid: obj._id,
+        tid: parms.tid
+      })
+      // 用户是否收藏
+      if (userCollert && userCollert.tid) {
+        isFav = true
+      }
+    }
+    // 插入isFav
+    const newpost = post.toJSON()
+    newpost.isFav = isFav
     if (post._id && result.acknowledged) {
       // const result = rename(post.toJSON(), 'uid', 'user')// 把查询的uid改名为user
       ctx.body = {
         code: 200,
-        data: post,
+        data: newpost,
         msg: '成功获取文章详情'
       }
     } else {
