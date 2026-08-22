@@ -294,5 +294,31 @@ class UserController {
       }
     }
   }
+
+  // 获取用户基本信息
+  async getBasinInfo (ctx) {
+    // 获取客户端 IP
+    let ip
+    // 如果配置了代理且设置了 app.proxy = true，
+    // ctx.ips 会按可信代理顺序返回 IP 数组，第一个通常是客户端真实 IP
+    if (ctx.ips.length > 0) {
+      ip = ctx.ips[0]
+    } else {
+    // 否则从 x-forwarded-for 头手动解析（注意可能存在伪造风险）
+      const forwarded = ctx.headers['x-forwarded-for']
+      ip = forwarded
+        ? forwarded.split(',')[0].trim()
+        : ctx.request.ip // 或 ctx.req.socket.remoteAddress
+    }
+    const params = ctx.query
+    const uid = params.uid
+    const user = await UserModel.findByID(uid)
+    ctx.body = {
+      code: 200,
+      data: user,
+      msg: '查询成功',
+      ip
+    }
+  }
 }
 export default new UserController()

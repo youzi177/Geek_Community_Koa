@@ -56,7 +56,18 @@ CommentsSchema.statics = {
   // 评论数量
   queryCount: function (id) {
     return this.find({ tid: id }).countDocuments()
-  }
+  },
+  // 获取用户最近的评论记录
+  getCommetsPublic: function (id, page, limit) {
+    return this.find({ cuid: id })
+      .populate({
+        path: 'tid',
+        select: '_id title'
+      })
+      .skip(page * limit)
+      .limit(limit)
+      .sort({ created: -1 })
+  },
 }
 
 const Comments = mongoose.model('comments', CommentsSchema)
