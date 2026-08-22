@@ -25,7 +25,8 @@ router.get('/comments', commentsController.getComments)
 router.get('/info', UserController.getBasinInfo)
 // 获取用户最近的发贴记录
 router.get('/latestPost', contentController.getPostPublic)
-
 // 获取用户最近的评论记录
 router.get('/latestComment', commentsController.getCommentPublic)
+// 获取用签到排行
+router.get('/hotSignRecord', PublicController.getHotSignRecord)
 export default router

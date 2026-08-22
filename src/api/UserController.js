@@ -161,17 +161,22 @@ class UserController {
       })
       msg1 = '更新基本资料成功，账号修改需要邮件确认，请查收邮件！'
     }
-    // 查询昵称name是否注册
+    // 查询昵称name是否注册，需要考虑用户名是否修改，没有修改就不需要判断name是否注册
     const user2 = await UserModel.findOne({ name: body.name })
-    console.log(' body.name', body.name)
     if (user2 !== null && typeof user2.name !== 'undefined') {
-      msg.name = '此昵称已经被使用，请修改'
-      ctx.body = {
-        code: 501,
-        msg
+      // 需要考虑用户名是否修改，没有修改就不需要判断name是否注册，继续下面的流程
+      // 如果修改了，并且也查询有数据，并且用户ID和这个查询出来的用户ID不一致，那就确定是同名了
+      const user2str = user2._id.toString()
+      if (user2str !== obj._id) {
+        msg.name = '此昵称已经被使用，请修改'
+        ctx.body = {
+          code: 501,
+          msg
+        }
+        return
       }
-      return
     }
+
     // 为了接口通用，但是又不想修改敏感数据，所以这里删除掉一些敏感字段，确保不能修改
     const arr = ['username', 'mobile', 'password']
     arr.map((item) => delete body[item])

@@ -52,6 +52,17 @@ UserSchema.statics = {
       mobile: 0
     })
   },
+  // 签到记录
+  getTotalSign: function (page, limit) {
+    return this.find({ count: { $gt: 0 } })
+      .skip(page * limit)
+      .limit(limit)
+      .sort({ count: -1 })
+  },
+  // 签到总数
+  getTotalSignCount: function (page, limit) {
+    return this.find({ count: { $gt: 0 } }).countDocuments()
+  },
 }
 const UserModel = mongoose.model('users', UserSchema)
 
