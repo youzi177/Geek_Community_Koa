@@ -267,5 +267,32 @@ class UserController {
       }
     }
   }
+
+  // 获取收藏列表
+  async getCollectByUid (ctx) {
+    const params = ctx.query
+    const obj = await getJWTPayload(ctx.header.authorization)
+    const result = await UserCollect.getListByUid(
+      obj._id,
+      params.page,
+      params.limit ? parseInt(params.limit) : 10
+    )
+    const total = await UserCollect.countByUid(obj._id)
+    // console.log(result)
+
+    if (result.length > 0) {
+      ctx.body = {
+        code: 200,
+        data: result,
+        total,
+        msg: '查询列表成功'
+      }
+    } else {
+      ctx.body = {
+        code: 500,
+        msg: '查询失败或者没有收藏'
+      }
+    }
+  }
 }
 export default new UserController()

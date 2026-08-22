@@ -337,5 +337,57 @@ class ContentController {
       msg: '更新帖子成功'
     }
   }
+
+  // 获取发帖记录
+  async getPostByUid (ctx) {
+    const params = ctx.query
+    // 1：取用户ID
+    const obj = await getJWTPayload(ctx.header.authorization)
+    const result = await Post.getListByUid(obj._id, params.page, params.limit ? parseInt(params.limit) : 10)
+    const total = await Post.coutByUid(obj._id)
+    if (result.length > 0) {
+      ctx.body = {
+        code: 200,
+        data: result,
+        total,
+        msg: '查询成功'
+      }
+    } else {
+      ctx.body = {
+        code: 500,
+        msg: '查询失败'
+      }
+    }
+  }
+
+  // 删除贴子
+  async deletePostByUid (ctx) {
+    const params = ctx.query
+    // 1：取用户ID
+    const obj = await getJWTPayload(ctx.header.authorization)
+    const post = await Post.findOne({ uid: obj._id, _id: params.tid })
+    console.log(post)
+
+    // 判断用户是不是这个贴子的作者，是的话才可以删除，已结帖的不允许删除
+    if (post.id === params.tid && post.isEnd === '0') {
+      const result = await Post.deleteOne({ _id: params.tid })
+      if (result.acknowledged) {
+        ctx.body = {
+          code: 200,
+          msg: '删除成功'
+        }
+      } else {
+        ctx.body = {
+          code: 500,
+          msg: '删除失败'
+        }
+      }
+    } else {
+      ctx.body = {
+        code: 500,
+        msg: '删除失败，无权限或者已结帖'
+      }
+    }
+  }
 }
 export default new ContentController()

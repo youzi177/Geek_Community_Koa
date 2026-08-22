@@ -28,6 +28,17 @@ UserCollectSchema.post('save', function (error, doc, next) {
 })
 // 静态方法
 UserCollectSchema.statics = {
+  // 查询特定用户的收藏数据
+  getListByUid: function (id, page, limit) {
+    return this.find({ uid: id })
+      .skip(limit * page)
+      .limit(limit)
+      .sort({ created: -1 })
+  },
+  // 查询收藏总数
+  countByUid: function (id) {
+    return this.find({ uid: id }).countDocuments()
+  },
 
 }
 

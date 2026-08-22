@@ -66,6 +66,14 @@ PostSchema.statics = {
       path: 'uid',
       select: 'name pic isVip _id'
     })
+  },
+  // 获取用户发帖记录
+  getListByUid: function (id, page, limit) {
+    return this.find({ uid: id }).skip(page * limit).limit(limit).sort({ created: -1 })
+  },
+  // 发帖条数
+  coutByUid: function (id) {
+    return this.find({ uid: id }).countDocuments()
   }
 }
 
