@@ -3,6 +3,7 @@ import Post from '../model/Post'
 import User from '../model/User'
 import { cheackCode, getJWTPayload } from '../common/utils'
 import CommentsHands from '../model/CommentsHands'
+import PostModel from '../model/Post'
 // 判断用户是否被禁言
 const canReply = async (ctx) => {
   let result = false
@@ -78,6 +79,11 @@ class CommentsController {
     const newComment = new Comments(body)
     const obj = await getJWTPayload(ctx.header.authorization)
     newComment.cuid = obj._id
+    // 查询贴子的作者，以便发送消息
+    const post = await PostModel.findOne({ _id: body.tid })
+    console.log('🚀 ~ CommentsController ~ addComments ~ post.uid:', post.uid)
+    newComment.uid = post.uid
+
     const comment = await newComment.save()
     // 更新评论数
     const updatePostresult = await Post.updateOne({ _id: body.tid }, {

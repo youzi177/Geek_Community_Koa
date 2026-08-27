@@ -2,6 +2,7 @@ import SignModel from '../model/Sign'
 import { getJWTPayload } from '../common/utils'
 import UserModel from '../model/User'
 import UserCollect from '../model/UserCollect'
+import Comments from '../model/Comments'
 import moment from 'moment'
 import send from '../config/MailConfig'
 import { v4 as uuidv4 } from 'uuid'
@@ -324,6 +325,22 @@ class UserController {
       msg: '查询成功',
       ip
     }
+  }
+
+  // 获取历史消息
+  // 记录评论之后，给作者发送消息
+  async getMsg (ctx) {
+    const params = ctx.query
+    const page = params.limit ? parseInt(params.page) : 0
+    const limit = params.limit ? parseInt(params.limit) : 0
+    // 方法1：嵌套查询-> aggregate
+    const obj = await getJWTPayload(ctx.header.authorization)
+    const result = await Comments.getMsgList(obj._id, page, limit)
+    ctx.body = {
+      code: 200,
+      data: result
+    }
+    // 方法2：通过冗余换时间
   }
 }
 export default new UserController()

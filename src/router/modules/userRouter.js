@@ -17,4 +17,6 @@ router.get('/collect', UserController.getCollectByUid)
 router.get('/post', ContentController.getPostByUid)
 // 删除发帖
 router.get('/delet-post', ContentController.deletePostByUid)
+// 获取历史消息
+router.get('/getmsg', UserController.getMsg)
 export default router
