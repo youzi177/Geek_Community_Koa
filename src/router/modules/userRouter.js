@@ -19,4 +19,6 @@ router.get('/post', ContentController.getPostByUid)
 router.get('/delet-post', ContentController.deletePostByUid)
 // 获取历史消息
 router.get('/getmsg', UserController.getMsg)
+// 设置已读消息
+router.get('/setmsg', UserController.setMsg)
 export default router

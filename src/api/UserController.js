@@ -336,11 +336,35 @@ class UserController {
     // 方法1：嵌套查询-> aggregate
     const obj = await getJWTPayload(ctx.header.authorization)
     const result = await Comments.getMsgList(obj._id, page, limit)
+    const num = await Comments.getTotal(obj._id)
     ctx.body = {
       code: 200,
-      data: result
+      data: result,
+      total: num
     }
     // 方法2：通过冗余换时间
+  }
+
+  // 设置已读消息
+  async setMsg (ctx) {
+    const params = ctx.query
+    if (params.id) {
+      const result = await Comments.updateOne({ _id: params.id }, { isRead: '1' })
+      if (result.acknowledged) {
+        ctx.body = {
+          code: 200
+        }
+      }
+    } else {
+      // 设置所有消息已读
+      const obj = await getJWTPayload(ctx.header.authorization)
+      const result = await Comments.updateMany({ uid: obj._id }, { isRead: '1' })
+      if (result.acknowledged) {
+        ctx.body = {
+          code: 200
+        }
+      }
+    }
   }
 }
 export default new UserController()
