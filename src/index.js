@@ -11,8 +11,10 @@ import compress from 'koa-compress'
 import JWT from 'koa-jwt'
 import config from './config/index'
 import ErrorHandle from './common/ErrorHandle'
+import WebsocketServer from './config/WbeSocket'
 const app = new Koa()
-
+const ws = new WebsocketServer()
+ws.init()
 // process.env.NODE_ENV 不等于 'production'那就是true，就是开发模式，否则生产模式
 const isDevMode = process.env.NODE_ENV !== 'production'
 // 开发模式为3000端口，生产模式为12006
