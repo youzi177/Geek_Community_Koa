@@ -15,6 +15,7 @@ import WebsocketServer from './config/WbeSocket'
 const app = new Koa()
 const ws = new WebsocketServer()
 ws.init()
+global.ws = ws
 // process.env.NODE_ENV 不等于 'production'那就是true，就是开发模式，否则生产模式
 const isDevMode = process.env.NODE_ENV !== 'production'
 // 开发模式为3000端口，生产模式为12006

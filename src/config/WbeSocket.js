@@ -1,5 +1,6 @@
 import websocket from 'ws'
 import { getJWTPayload } from '../common/utils'
+import Comments from '../model/Comments'
 class WebSocketServer {
   constructor (config = {}) {
     const defaultConfig = {
@@ -43,18 +44,26 @@ class WebSocketServer {
       auth: async () => {
         console.log(msgObj.message)
         try {
+          // 鉴权成功后广播消息
           const obj = await getJWTPayload(msgObj.message)
+
           if (obj) {
             ws.isAuth = true
             ws._id = obj._id
+            const num = await Comments.getTotal(obj._id)
             ws.send(JSON.stringify({
               event: 'message',
-              message: 'auth is ok'
+              message: num
             }))
+            // ws.send(JSON.stringify({
+            //   event: 'auth',
+            //   message: 'auth is ok'
+            // }))
           }
         } catch (error) {
           ws.send(JSON.stringify({
-            event: 'noauth'
+            event: 'noauth',
+            message: 'auth is no'
           }))
         }
       },
@@ -73,7 +82,7 @@ class WebSocketServer {
         // 消息广播
         this.wss.clients.forEach((client) => {
           if (client.readyState === WebSocket.OPEN && client._id === ws._id) {
-            this.send(msg)
+            client.send(msg)
           }
         })
       }
@@ -85,7 +94,7 @@ class WebSocketServer {
   send (uid, msg) {
     this.wss.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN && client._id === uid) {
-        this.send(msg)
+        client.send(msg)
       }
     })
   }
@@ -94,6 +103,7 @@ class WebSocketServer {
   broadcast (msg) {
     this.wss.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
+        // client？
         this.send(msg)
       }
     })

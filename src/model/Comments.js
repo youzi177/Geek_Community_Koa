@@ -92,6 +92,9 @@ CommentsSchema.statics = {
       .skip(limit * page)
       .limit(limit)
       .sort({ created: -1 })
+  },
+  getTotal: function (id) {
+    return this.find({ uid: id, isRead: '0', status: '1' }).countDocuments()
   }
 }
 

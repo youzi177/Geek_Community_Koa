@@ -81,10 +81,15 @@ class CommentsController {
     newComment.cuid = obj._id
     // 查询贴子的作者，以便发送消息
     const post = await PostModel.findOne({ _id: body.tid })
-    console.log('🚀 ~ CommentsController ~ addComments ~ post.uid:', post.uid)
+    // console.log('🚀 ~ CommentsController ~ addComments ~ post.uid:', post.uid)
     newComment.uid = post.uid
 
     const comment = await newComment.save()
+    const num = await Comments.getTotal(post.uid)
+    global.ws.send(post.uid, JSON.stringify({
+      event: 'message',
+      message: num
+    }))
     // 更新评论数
     const updatePostresult = await Post.updateOne({ _id: body.tid }, {
       $inc: {
