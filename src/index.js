@@ -11,7 +11,7 @@ import compress from 'koa-compress'
 import JWT from 'koa-jwt'
 import config from './config/index'
 import ErrorHandle from './common/ErrorHandle'
-import WebsocketServer from './config/WbeSocket'
+import WebsocketServer from './config/WebSocket'
 const app = new Koa()
 const ws = new WebsocketServer()
 ws.init()

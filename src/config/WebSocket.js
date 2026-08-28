@@ -5,13 +5,13 @@ class WebSocketServer {
   constructor (config = {}) {
     const defaultConfig = {
       port: 3001,
-      timeInterval: 30 * 1000,
+      timeInterval: 3 * 1000,
       isAuth: true
     }
     // 最终配置
     const finalConfig = { ...defaultConfig, ...config }
     this.wss = {}
-    this.interval = finalConfig.timeInterval
+    this.timeInterval = finalConfig.timeInterval
     this.isAuth = finalConfig.isAuth
     this.port = finalConfig.port
     this.options = config.options || {}
@@ -19,8 +19,15 @@ class WebSocketServer {
 
   init () {
     this.wss = new websocket.Server({ port: this.port, ...this.options })
+
     // 连接信息
     this.wss.on('connection', (ws) => {
+      // 连接上之后随即发送一次心跳检测
+      ws.isAlive = true
+      ws.send(JSON.stringify({
+        event: 'heartbeat',
+        message: 'ping'
+      }))
       ws.isAuth = true
       // 监听客户端发送的消息
       ws.on('message', (msg) => {
@@ -31,6 +38,8 @@ class WebSocketServer {
         this.onClose(ws)
       })
     })
+    // 心跳检测
+    this.heartbeat()
   }
 
   //
@@ -69,6 +78,7 @@ class WebSocketServer {
       },
       // 心跳检测
       heartbeat: () => {
+        this.heartbeat()
         if (msgObj.message === 'pong') {
           ws.isAlive = true
         }
