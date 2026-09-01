@@ -207,7 +207,7 @@ class LoginController {
       if (chekuserPasword) {
         // 剔除敏感数据,这需要注意顺序，user为空不能toJSON
         const userobj = user.toJSON()
-        const arr = ['password', 'username', 'roles']
+        const arr = ['password', 'username']
         arr.map((item) => {
           return delete userobj[item]
         })
