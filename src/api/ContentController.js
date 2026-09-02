@@ -414,5 +414,22 @@ class ContentController {
       }
     }
   }
+
+  // 删除贴子，后台系统接口
+  async deletePostByTid (ctx) {
+    const params = ctx.query
+    const result = await Post.deleteOne({ _id: params.tid })
+    if (result.acknowledged) {
+      ctx.body = {
+        code: 200,
+        msg: '删除成功'
+      }
+    } else {
+      ctx.body = {
+        code: 500,
+        msg: '删除失败'
+      }
+    }
+  }
 }
 export default new ContentController()

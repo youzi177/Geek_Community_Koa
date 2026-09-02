@@ -8,4 +8,6 @@ router.post('/upload', contentController.uploadImg)
 router.post('/add', contentController.addPost)
 // 更新贴子
 router.post('/update', contentController.updatePost)
+// 删除贴子，后台系统接口
+router.get('/delete', contentController.deletePostByTid)
 export default router
