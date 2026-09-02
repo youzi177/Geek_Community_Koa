@@ -8,6 +8,7 @@ import { dirExists, cheackCode, getJWTPayload } from '../common/utils'
 import UserModel from '../model/User'
 import PostModel from '../model/Post'
 import UserCollect from '../model/UserCollect'
+import PostTags from '../model/PostTags'
 
 class ContentController {
   // 获取文章列表
@@ -447,6 +448,56 @@ class ContentController {
         code: 500,
         msg: '更新贴子失败'
       }
+    }
+  }
+
+  // 添加标签
+  async addTag (ctx) {
+    const { body } = ctx.request
+    const tag = new PostTags(body)
+    await tag.save()
+    ctx.body = {
+      code: 200,
+      msg: '标签保存成功'
+    }
+  }
+
+  // 添加标签
+  async getTags (ctx) {
+    const params = ctx.query
+    const page = params.page ? parseInt(params.page) : 0
+    const limit = params.limit ? parseInt(params.limit) : 10
+    const result = await PostTags.getList({}, page, limit)
+    const total = await PostTags.countList({})
+    ctx.body = {
+      code: 200,
+      data: result,
+      total,
+      msg: '查询tags成功！'
+    }
+  }
+
+  // 删除标签
+  async removeTag (ctx) {
+    const params = ctx.query
+    const result = await PostTags.deleteOne({ id: params.ptid })
+
+    ctx.body = {
+      code: 200,
+      data: result,
+      msg: '删除成功'
+    }
+  }
+
+  // 删除标签
+  async updateTag (ctx) {
+    const { body } = ctx.request
+    const result = await PostTags.updateOne({ _id: body._id }, body)
+
+    ctx.body = {
+      code: 200,
+      data: result,
+      msg: '更新成功'
     }
   }
 }
