@@ -431,5 +431,23 @@ class ContentController {
       }
     }
   }
+
+  // 更新贴子，后台系统接口
+  async updatePostByTId (ctx) {
+    const { body } = ctx.request
+    const result = await Post.updateOne({ _id: body._id }, body)
+    if (result.acknowledged) {
+      ctx.body = {
+        code: 200,
+        data: result,
+        msg: '更新贴子成功'
+      }
+    } else {
+      ctx.body = {
+        code: 500,
+        msg: '更新贴子失败'
+      }
+    }
+  }
 }
 export default new ContentController()

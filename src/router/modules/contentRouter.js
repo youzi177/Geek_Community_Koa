@@ -10,4 +10,6 @@ router.post('/add', contentController.addPost)
 router.post('/update', contentController.updatePost)
 // 删除贴子，后台系统接口
 router.get('/delete', contentController.deletePostByTid)
+// 更新贴子，后台系统接口
+router.post('/update-id', contentController.updatePostByTId)
 export default router
