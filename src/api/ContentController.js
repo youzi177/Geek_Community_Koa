@@ -14,7 +14,7 @@ class ContentController {
   async getPostList (ctx) {
     const body = ctx.query
     const sort = body.sort ? body.sort : 'created'
-    const page = body.sort ? parseInt(body.page) : 0
+    const page = body.page ? parseInt(body.page) : 0
     const limit = body.limit ? parseInt(body.limit) : 20
     const options = {}
     // 查 catlog
