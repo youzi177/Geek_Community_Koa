@@ -47,6 +47,10 @@ PostSchema.statics = {
         select: 'name isVip pic'
       })
   },
+  // 获取文章总数
+  countList: function (options) {
+    return this.find(options).countDocuments()
+  },
   // 本周热议
   getTopWeek: function () {
     return this.find({
