@@ -12,7 +12,7 @@ export default async (ctx, next) => {
     }
     if (obj._id) {
       ctx._id = obj._id
-      await next()
     }
   }
+  await next()
 }
