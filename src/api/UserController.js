@@ -303,8 +303,8 @@ class UserController {
 
   // 获取用户基本信息
   async getBasinInfo (ctx) {
-    // 后台管理通过header传递ID的
-    const obj = await getJWTPayload(ctx.header.authorization)
+    // 后台管理通过header传递ID的，不能这样传
+    // const obj = await getJWTPayload(ctx.header.authorization)
     // 获取客户端 IP
     let ip
     // 如果配置了代理且设置了 app.proxy = true，
@@ -319,7 +319,7 @@ class UserController {
         : ctx.request.ip // 或 ctx.req.socket.remoteAddress
     }
     const params = ctx.query
-    const uid = params.uid || obj._id
+    const uid = params.uid || ctx._id
     const user = await UserModel.findByID(uid)
     ctx.body = {
       code: 200,
