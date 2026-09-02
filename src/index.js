@@ -12,6 +12,7 @@ import JWT from 'koa-jwt'
 import config from './config/index'
 import ErrorHandle from './common/ErrorHandle'
 import WebsocketServer from './config/WebSocket'
+import auth from './common/Auth'
 const app = new Koa()
 const ws = new WebsocketServer()
 ws.init()
@@ -43,6 +44,7 @@ const middleware = compose([
 
   statics(path.join(__dirname, '../public')),
   jwt,
+  auth
 ])
 app.use(middleware)
 app.use(router())
