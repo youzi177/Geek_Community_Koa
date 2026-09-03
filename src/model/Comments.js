@@ -1,5 +1,6 @@
 import mongoose from '../config/DBHelpler'
 import moment from 'moment'
+import CommentsHands from './CommentsHands'
 const Schema = mongoose.Schema
 
 const CommentsSchema = new Schema({
@@ -95,7 +96,16 @@ CommentsSchema.statics = {
   },
   getTotal: function (id) {
     return this.find({ uid: id, isRead: '0', status: '1' }).countDocuments()
-  }
+  },
+  // 删除评论，先删除该评论相关的点赞
+  deleteManyAndRef: async function (conditions) {
+    const commentList = await this.find(conditions)
+    console.assert(commentList.length > 0, '未找到要删除的 comments 文档！')
+    for (let i = 0; i < commentList.length; i++) {
+      await CommentsHands.deleteByCommentId(commentList[i]._id)
+    }
+    return this.deleteMany(conditions)
+  },
 }
 
 const Comments = mongoose.model('comments', CommentsSchema)

@@ -357,7 +357,7 @@ class ContentController {
     } else {
       ctx.body = {
         code: 500,
-        msg: '查询失败'
+        msg: '查询失败，没有发表文章'
       }
     }
   }
@@ -368,11 +368,25 @@ class ContentController {
     // 1：取用户ID
     const obj = await getJWTPayload(ctx.header.authorization)
     const post = await Post.findOne({ uid: obj._id, _id: params.tid })
+    // 3. 帖子不存在
+    if (!post) {
+      ctx.body = {
+        code: 404,
+        msg: '帖子不存在'
+      }
+      return
+    }
+
     console.log(post)
 
     // 判断用户是不是这个贴子的作者，是的话才可以删除，已结帖的不允许删除
     if (post.id === params.tid && post.isEnd === '0') {
-      const result = await Post.deleteOne({ _id: params.tid })
+      // const result = await Post.deleteOne({ _id: params.tid })
+      // 5. 删除帖子，同时删除评论、收藏、浏览历史等关联数据
+      // deleteManyAndRef 设计的是批量条件，所以把它包装成数组
+      const result = await Post.deleteManyAndRef({
+        _id: { $in: [params.tid] }
+      })
       if (result.acknowledged) {
         ctx.body = {
           code: 200,

@@ -32,6 +32,9 @@ CommentsSchema.statics = {
   findByTid: function (id) {
     return this.find({ tid: id })
   },
+  deleteByCommentId: function (cid) {
+    return this.deleteMany({ cid })
+  }
 }
 
 const CommentsHands = mongoose.model('comments_hands', CommentsSchema)

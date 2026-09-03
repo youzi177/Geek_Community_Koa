@@ -39,6 +39,9 @@ UserCollectSchema.statics = {
   countByUid: function (id) {
     return this.find({ uid: id }).countDocuments()
   },
+  deleteByPostId: function (tid) {
+    return this.deleteMany({ tid })
+  }
 
 }
 

@@ -320,6 +320,7 @@ class UserController {
     }
     const params = ctx.query
     const uid = params.uid || ctx._id
+
     const user = await UserModel.findByID(uid)
     ctx.body = {
       code: 200,

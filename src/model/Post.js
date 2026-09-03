@@ -1,5 +1,8 @@
 import mongoose from '../config/DBHelpler'
 import moment from 'moment'
+import Comments from './Comments'
+import UserCollect from './UserCollect'
+// import PostHistory from './PostHistory'//浏览记录后续开发
 const Schema = mongoose.Schema
 const PostSchema = new Schema({
   uid: { type: String, ref: 'users' },
@@ -78,6 +81,17 @@ PostSchema.statics = {
   // 发帖条数
   coutByUid: function (id) {
     return this.find({ uid: id }).countDocuments()
+  },
+  // 删除帖子，先删除该帖子相关的评论、收藏、浏览历史
+  deleteManyAndRef: async function (conditions) {
+    const postList = await this.find(conditions)
+    console.assert(postList.length > 0, '未找到要删除的 post 文档！')
+    for (let i = 0; i < postList.length; i++) {
+      await Comments.deleteManyAndRef({ tid: postList[i]._id })
+      await UserCollect.deleteByPostId(postList[i]._id)
+      // await PostHistory.deleteByPostId(postList[i]._id)
+    }
+    return this.deleteMany(conditions)
   }
 }
 
