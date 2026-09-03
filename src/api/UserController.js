@@ -375,7 +375,8 @@ class UserController {
     const params = ctx.query
     const page = params.page ? parseInt(params.page) : 0
     const limit = params.limit ? parseInt(params.limit) : 0
-    const result = await UserModel.getList({}, page, limit)
+    const sort = params.sort ? params.sort : 'created'
+    const result = await UserModel.getList({}, page, limit, sort)
     const total = await UserModel.countList({})
     ctx.body = {
       code: 200,
