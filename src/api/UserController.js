@@ -334,7 +334,7 @@ class UserController {
   // 记录评论之后，给作者发送消息
   async getMsg (ctx) {
     const params = ctx.query
-    const page = params.limit ? parseInt(params.page) : 0
+    const page = params.page ? parseInt(params.page) : 0
     const limit = params.limit ? parseInt(params.limit) : 0
     // 方法1：嵌套查询-> aggregate
     const obj = await getJWTPayload(ctx.header.authorization)
@@ -367,6 +367,20 @@ class UserController {
           code: 200
         }
       }
+    }
+  }
+
+  // 获取用户列表
+  async getUsers (ctx) {
+    const params = ctx.query
+    const page = params.page ? parseInt(params.page) : 0
+    const limit = params.limit ? parseInt(params.limit) : 0
+    const result = await UserModel.getList({}, page, limit)
+    const total = await UserModel.countList({})
+    ctx.body = {
+      code: 200,
+      data: result,
+      total
     }
   }
 }

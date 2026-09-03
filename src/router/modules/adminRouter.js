@@ -1,6 +1,7 @@
 import Router from 'koa-router'
 // import adminController from '../../api/AdminController'
 import contentController from '../../api/ContentController'
+import UserController from '../../api/UserController'
 const router = new Router()
 
 router.prefix('/admin')
@@ -16,5 +17,7 @@ router.get('/removeTag', contentController.removeTag)
 
 // 编辑标签
 router.post('/editTag', contentController.updateTag)
+// 用户管理
+router.get('/users', UserController.getUsers)
 
 export default router

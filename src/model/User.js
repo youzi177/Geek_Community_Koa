@@ -52,6 +52,23 @@ UserSchema.statics = {
       mobile: 0
     })
   },
+  // 获取用户列表
+  getList: function (options, sort, page, limit) {
+    return this.find(
+      { ...options },
+      {
+        // 不需要显示
+        password: 0,
+        mobile: 0
+      }
+    )
+      .sort({ [sort]: -1 })
+      .skip(page * limit)
+      .limit(limit)
+  },
+  countList: function (options) {
+    return this.find(options).countDocuments()
+  },
   // 签到记录
   getTotalSign: function (page, limit) {
     return this.find({ count: { $gt: 0 } })
