@@ -23,5 +23,9 @@ router.get('/users', UserController.getUsers)
 router.get('/delete-users', UserController.deleteUserById)
 // 更新用户信息
 router.post('/update-users', UserController.updateUserById)
+// 异步校验用户名
+router.get('/checkusername', UserController.checkUsername)
+// 异步校验昵称
+router.get('/checkname', UserController.checkName)
 
 export default router

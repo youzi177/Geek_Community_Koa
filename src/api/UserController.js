@@ -473,5 +473,49 @@ class UserController {
     //   msg: '更新成功'
     // }
   }
+
+  // 异步校验用户名
+  async checkUsername (ctx) {
+    const params = ctx.query
+    const user = await UserModel.findOne({ _id: params._id })
+    // 校验是否修改了username
+    // 有传过来body.username，并且body.username不和登录的username登录一样，说明修改了username
+    if (params.username && params.username !== user.username) {
+      // 判断用户新邮箱是否有人注册
+      const tmpUser = await UserModel.findOne({ username: params.username })
+      // 默认1校验通过，0失败
+      let result = 1
+      if (tmpUser && tmpUser.password) {
+        result = 0
+      }
+      ctx.body = {
+        code: 500,
+        data: result,
+        msg: '此邮箱已经被注册,请修改'
+      }
+    }
+  }
+
+  // 异步校验昵称
+  async checkName (ctx) {
+    const params = ctx.query
+    const user = await UserModel.findOne({ _id: params._id })
+    // 判断用户是否修改了昵称
+    // 有传过来body.name，并且body.name不和登录的name登录一样，说明修改了name
+    if (params.name !== null && typeof params.name !== 'undefined' && params.name !== user.name) {
+      // 判断用户新昵称是否有人注册
+      const tmpUser = await UserModel.findOne({ name: params.name })
+      // 默认1校验通过，0失败
+      let result = 1
+      if (tmpUser && tmpUser.password) {
+        result = 0
+      }
+      ctx.body = {
+        code: 500,
+        data: result,
+        msg: '此昵称已经被使用，请修改'
+      }
+    }
+  }
 }
 export default new UserController()
