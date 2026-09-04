@@ -493,6 +493,7 @@ class UserController {
         data: result,
         msg: '校验结果0失败1成功'
       }
+      return
     }
     // 校验用户是否存在
     const user = await UserModel.findOne({ _id: params.id })
@@ -551,6 +552,7 @@ class UserController {
         data: result,
         msg: '校验结果0失败1成功'
       }
+      return
     }
     // 校验用户是否存在
     const user = await UserModel.findOne({ _id: params.id })
