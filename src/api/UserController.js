@@ -169,7 +169,7 @@ class UserController {
     // 有传过来body.name，并且body.name不和登录的name登录一样，说明修改了name
     if (body.name !== null && typeof body.name !== 'undefined' && body.name !== user.name) {
       // 判断用户新昵称是否有人注册
-      const tmpUser = await UserModel.findOne({ username: body.username })
+      const tmpUser = await UserModel.findOne({ name: body.name })
       if (tmpUser && tmpUser.password) {
         msg.name = '此昵称已经被使用，请修改'
         ctx.body = {
@@ -437,7 +437,7 @@ class UserController {
     // 有传过来body.name，并且body.name不和登录的name登录一样，说明修改了name
     if (body.name !== null && typeof body.name !== 'undefined' && body.name !== user.name) {
       // 判断用户新昵称是否有人注册
-      const tmpUser = await UserModel.findOne({ username: body.username })
+      const tmpUser = await UserModel.findOne({ name: body.name })
       if (tmpUser && tmpUser.password) {
         ctx.body = {
           code: 501,
