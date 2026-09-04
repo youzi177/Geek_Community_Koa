@@ -387,7 +387,7 @@ class UserController {
     }
   }
 
-  // 管理员删除用户
+  // 管理员删除用户,存在问题，删除用户应该把关联数据删除
   async deleteUserById (ctx) {
     const params = ctx.query
     const user = await UserModel.findOne({ _id: params.id })
@@ -477,6 +477,23 @@ class UserController {
   // 异步校验用户名
   async checkUsername (ctx) {
     const params = ctx.query
+    // 新增用户
+    if (!params.id) {
+      let result = 1
+      const tmpUser = await UserModel.findOne({ username: params.username })
+      if (tmpUser && tmpUser.password) {
+        // 有人注册
+        result = 0
+      } else {
+        // 没人注册
+        result = 1
+      }
+      ctx.body = {
+        code: 200,
+        data: result,
+        msg: '校验结果0失败1成功'
+      }
+    }
     // 校验用户是否存在
     const user = await UserModel.findOne({ _id: params.id })
     // 用户不存在
@@ -518,6 +535,23 @@ class UserController {
   // 异步校验昵称
   async checkName (ctx) {
     const params = ctx.query
+    // 新增用户
+    if (!params.id) {
+      let result = 1
+      const tmpUser = await UserModel.findOne({ name: params.name })
+      if (tmpUser && tmpUser.password) {
+        // 有人注册
+        result = 0
+      } else {
+        // 没人注册
+        result = 1
+      }
+      ctx.body = {
+        code: 200,
+        data: result,
+        msg: '校验结果0失败1成功'
+      }
+    }
     // 校验用户是否存在
     const user = await UserModel.findOne({ _id: params.id })
     // 用户不存在
