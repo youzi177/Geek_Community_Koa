@@ -125,11 +125,14 @@ class UserController {
   // 更新用户基本信息接口
   async updateUserInfo (ctx) {
     const { body } = ctx.request
+    // 用户登录的账号ID
     const obj = await getJWTPayload(ctx.header.authorization)
-    // 判断用户是都修改了邮箱
+    // 用户登录的账号信息
     const user = await UserModel.findOne({ _id: obj._id })
-    const msg = {}// veecadate错误信息
+    const msg = {}// veevadate错误信息
     let msg1 = ''
+    // 判断用户是否修改了邮箱
+    // 有传过来body.username，并且body.username不和登录的username登录一样，说明修改了username
     if (body.username && body.username !== user.username) {
       // 判断用户新邮箱是否有人注册
       const tmpUser = await UserModel.findOne({ username: body.username })
@@ -162,13 +165,12 @@ class UserController {
       })
       msg1 = '更新基本资料成功，账号修改需要邮件确认，请查收邮件！'
     }
-    // 查询昵称name是否注册，需要考虑用户名是否修改，没有修改就不需要判断name是否注册
-    const user2 = await UserModel.findOne({ name: body.name })
-    if (user2 !== null && typeof user2.name !== 'undefined') {
-      // 需要考虑用户名是否修改，没有修改就不需要判断name是否注册，继续下面的流程
-      // 如果修改了，并且也查询有数据，并且用户ID和这个查询出来的用户ID不一致，那就确定是同名了
-      const user2str = user2._id.toString()
-      if (user2str !== obj._id) {
+    // 判断用户是否修改了昵称
+    // 有传过来body.name，并且body.name不和登录的name登录一样，说明修改了name
+    if (body.name !== null && typeof body.name !== 'undefined' && body.name !== user.name) {
+      // 判断用户新昵称是否有人注册
+      const tmpUser = await UserModel.findOne({ username: body.username })
+      if (tmpUser && tmpUser.password) {
         msg.name = '此昵称已经被使用，请修改'
         ctx.body = {
           code: 501,
@@ -383,6 +385,93 @@ class UserController {
       data: result,
       total
     }
+  }
+
+  // 管理员删除用户
+  async deleteUserById (ctx) {
+    const params = ctx.query
+    const user = await UserModel.findOne({ _id: params.id })
+    if (user) {
+      const result = await UserModel.deleteOne({ _id: params.id })
+      ctx.body = {
+        code: 200,
+        msg: '删除成功',
+        data: result
+      }
+    } else {
+      ctx.body = {
+        code: 500,
+        msg: '用户不存在或者id信息错误',
+
+      }
+    }
+  }
+
+  // 管理员更新用户信息
+  async updateUserById (ctx) {
+    const { body } = ctx.request
+    // 校验用户是否存在
+    const user = await UserModel.findOne({ _id: body._id })
+    // 用户不存在
+    if (!user) {
+      ctx.body = {
+        code: 500,
+        msg: '用户不存在或者ID错误'
+      }
+      return
+    }
+    // 校验是否修改了username
+    // 有传过来body.username，并且body.username不和登录的username登录一样，说明修改了username
+    if (body.username && body.username !== user.username) {
+      // 判断用户新邮箱是否有人注册
+      const tmpUser = await UserModel.findOne({ username: body.username })
+      if (tmpUser && tmpUser.password) {
+        ctx.body = {
+          code: 500,
+          msg: '此邮箱已经被注册,请修改'
+        }
+        return
+      }
+    }
+    // 判断用户是否修改了昵称
+    // 有传过来body.name，并且body.name不和登录的name登录一样，说明修改了name
+    if (body.name !== null && typeof body.name !== 'undefined' && body.name !== user.name) {
+      // 判断用户新昵称是否有人注册
+      const tmpUser = await UserModel.findOne({ username: body.username })
+      if (tmpUser && tmpUser.password) {
+        ctx.body = {
+          code: 501,
+          msg: '此昵称已经被使用，请修改'
+        }
+        return
+      }
+    }
+    // 密码这里只要判断有没有传过来就行，有传就加密
+    if (body.password) {
+      body.password = await bcrypt.hash(body.password, 10)
+    }
+    // 为了接口通用，但是又不想修改敏感数据，所以这里删除掉一些敏感字段，确保不能修改
+    const arr = ['mobile']
+    arr.map((item) => delete body[item])
+    const result = await UserModel.updateOne({
+      _id: body._id
+    }, body)
+    //  matchedCount是更新一条，acknowledged是否成功
+    if (result.matchedCount === 1 && result.acknowledged) {
+      ctx.body = {
+        code: 200,
+        msg: '更新成功'
+      }
+    } else {
+      ctx.body = {
+        code: 500,
+        msg: '更新失败'
+      }
+    }
+    // ctx.body = {
+    //   code: 200,
+    //   msg: '更新成功'
+    // }
   }
 }
 export default new UserController()

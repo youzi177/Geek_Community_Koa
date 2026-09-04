@@ -19,5 +19,9 @@ router.get('/removeTag', contentController.removeTag)
 router.post('/editTag', contentController.updateTag)
 // 用户管理
 router.get('/users', UserController.getUsers)
+// 删除用户
+router.get('/delete-users', UserController.deleteUserById)
+// 更新用户信息
+router.post('/update-users', UserController.updateUserById)
 
 export default router
