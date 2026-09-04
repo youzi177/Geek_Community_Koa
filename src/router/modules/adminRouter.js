@@ -27,5 +27,6 @@ router.post('/update-users', UserController.updateUserById)
 router.get('/checkusername', UserController.checkUsername)
 // 异步校验昵称
 router.get('/checkname', UserController.checkName)
-
+// 新增用户
+router.post('/add-user', UserController.addUser)
 export default router

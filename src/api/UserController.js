@@ -591,5 +591,32 @@ class UserController {
       }
     }
   }
+
+  // 新增用户
+  async addUser (ctx) {
+    const { body } = ctx.request
+    // 密码加密
+    body.password = await bcrypt.hash(body.password, 10)
+    const user = new UserModel(body)
+    const result = await user.save()
+    // 剔除敏感数据,这需要注意顺序，user为空不能toJSON
+    const userobj = result.toJSON()
+    const arr = ['password']
+    arr.map((item) => {
+      return delete userobj[item]
+    })
+    if (result) {
+      ctx.body = {
+        code: 200,
+        data: userobj,
+        msg: '添加用户成功'
+      }
+    } else {
+      ctx.body = {
+        code: 500,
+        msg: '服务异常'
+      }
+    }
+  }
 }
 export default new UserController()
