@@ -477,36 +477,82 @@ class UserController {
   // 异步校验用户名
   async checkUsername (ctx) {
     const params = ctx.query
-    const user = await UserModel.find({ username: params.username })
-    // 校验是否修改了username
-    // 有传过来body.username，并且查询出来的数据大于1就说明有2条数据一样，有人注册了
-    // 默认1校验通过，0失败
-    let result = 1
-    if (params.username && user.length > 1) {
-      result = 0
+    // 校验用户是否存在
+    const user = await UserModel.findOne({ _id: params.id })
+    // 用户不存在
+    if (!user) {
+      ctx.body = {
+        code: 500,
+        msg: '用户不存在或者ID错误'
+      }
+      return
     }
-    ctx.body = {
-      code: 200,
-      data: result,
-      msg: '校验规则，1通过0失败'
+    // 校验是否修改了username
+    // 有传过来body.username，并且body.username不和当前修改的username一样，说明修改了username
+    let result = 1
+    if (params.username && params.username !== user.username) {
+      // 判断用户新邮箱是否有人注册
+      const tmpUser = await UserModel.findOne({ username: params.username })
+      if (tmpUser && tmpUser.password) {
+        // 有人注册
+        result = 0
+      } else {
+        // 没人注册
+        result = 1
+      }
+      ctx.body = {
+        code: 200,
+        data: result,
+        msg: '校验结果0失败1成功'
+      }
+    } else {
+      // 没有修改
+      ctx.body = {
+        code: 200,
+        data: result,
+        msg: '没有修改邮箱，无需校验'
+      }
     }
   }
 
   // 异步校验昵称
   async checkName (ctx) {
     const params = ctx.query
-    const user = await UserModel.find({ name: params.name })
-    // 判断用户是否修改了昵称
-    // 有传过来body.name，并且查询出来的数据大于1就说明有2条数据一样，有人注册了
-    // 默认1校验通过，0失败
-    let result = 1
-    if (params.name !== null && typeof params.name !== 'undefined' && user.length > 1) {
-      result = 0
+    // 校验用户是否存在
+    const user = await UserModel.findOne({ _id: params.id })
+    // 用户不存在
+    if (!user) {
+      ctx.body = {
+        code: 500,
+        msg: '用户不存在或者ID错误'
+      }
+      return
     }
-    ctx.body = {
-      code: 200,
-      data: result,
-      msg: '校验规则，1通过0失败'
+    // 校验是否修改了name
+    // 有传过来body.name，并且body.name不和当前修改的name一样，说明修改了name
+    let result = 1
+    if (params.name && params.name !== user.name) {
+      // 判断用户新邮箱是否有人注册
+      const tmpUser = await UserModel.findOne({ name: params.name })
+      if (tmpUser && tmpUser.password) {
+        // 有人注册
+        result = 0
+      } else {
+        // 没人注册
+        result = 1
+      }
+      ctx.body = {
+        code: 200,
+        data: result,
+        msg: '校验结果0失败1成功'
+      }
+    } else {
+      // 没有修改
+      ctx.body = {
+        code: 200,
+        data: result,
+        msg: '没有修改用户名，无需校验'
+      }
     }
   }
 }
