@@ -477,56 +477,36 @@ class UserController {
   // 异步校验用户名
   async checkUsername (ctx) {
     const params = ctx.query
-    const user = await UserModel.findOne({ username: params.username })
+    const user = await UserModel.find({ username: params.username })
     // 校验是否修改了username
-    // 有传过来body.username，并且body.username不和登录的username登录一样，说明修改了username
-    if (params.username && params.username !== user.username) {
-      // 判断用户新邮箱是否有人注册
-      const tmpUser = await UserModel.findOne({ username: params.username })
-      // 默认1校验通过，0失败
-      let result = 1
-      if (tmpUser && tmpUser.password) {
-        result = 0
-      }
-      ctx.body = {
-        code: 200,
-        data: result,
-        msg: '此邮箱已经被注册,请修改'
-      }
-    } else {
-      ctx.body = {
-        code: 200,
-        data: 1,
-        msg: '没有修改用户名'
-      }
+    // 有传过来body.username，并且查询出来的数据大于1就说明有2条数据一样，有人注册了
+    // 默认1校验通过，0失败
+    let result = 1
+    if (params.username && user.length > 1) {
+      result = 0
+    }
+    ctx.body = {
+      code: 200,
+      data: result,
+      msg: '校验规则，1通过0失败'
     }
   }
 
   // 异步校验昵称
   async checkName (ctx) {
     const params = ctx.query
-    const user = await UserModel.findOne({ name: params.name })
+    const user = await UserModel.find({ name: params.name })
     // 判断用户是否修改了昵称
-    // 有传过来body.name，并且body.name不和登录的name登录一样，说明修改了name
-    if (params.name !== null && typeof params.name !== 'undefined' && params.name !== user.name) {
-      // 判断用户新昵称是否有人注册
-      const tmpUser = await UserModel.findOne({ name: params.name })
-      // 默认1校验通过，0失败
-      let result = 1
-      if (tmpUser && tmpUser.password) {
-        result = 0
-      }
-      ctx.body = {
-        code: 200,
-        data: result,
-        msg: '此昵称已经被使用，请修改'
-      }
-    } else {
-      ctx.body = {
-        code: 200,
-        data: 1,
-        msg: '没有修改昵称'
-      }
+    // 有传过来body.name，并且查询出来的数据大于1就说明有2条数据一样，有人注册了
+    // 默认1校验通过，0失败
+    let result = 1
+    if (params.name !== null && typeof params.name !== 'undefined' && user.length > 1) {
+      result = 0
+    }
+    ctx.body = {
+      code: 200,
+      data: result,
+      msg: '校验规则，1通过0失败'
     }
   }
 }
