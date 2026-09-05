@@ -29,4 +29,6 @@ router.get('/checkusername', UserController.checkUsername)
 router.get('/checkname', UserController.checkName)
 // 新增用户
 router.post('/add-user', UserController.addUser)
+// 批量设置用户
+router.post('/update-users-setting', UserController.updateUserBatchById)
 export default router

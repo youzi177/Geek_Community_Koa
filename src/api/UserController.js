@@ -624,5 +624,15 @@ class UserController {
       }
     }
   }
+
+  // 批量更新用户
+  async updateUserBatchById (ctx) {
+    const { body } = ctx.request
+    const result = await UserModel.updateMany({ _id: { $in: body.ids } }, { $set: { ...body.settings } })
+    ctx.body = {
+      code: 200,
+      data: result
+    }
+  }
 }
 export default new UserController()
