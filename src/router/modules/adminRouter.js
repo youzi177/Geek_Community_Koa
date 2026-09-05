@@ -18,7 +18,7 @@ router.get('/removeTag', contentController.removeTag)
 // 编辑标签
 router.post('/editTag', contentController.updateTag)
 // 用户管理
-router.get('/users', UserController.getUsers)
+router.post('/users', UserController.getUsers)
 // 删除用户
 router.post('/delete-users', UserController.deleteUserById)
 // 更新用户信息

@@ -374,10 +374,10 @@ class UserController {
 
   // 获取用户列表
   async getUsers (ctx) {
-    const params = ctx.query
-    const page = params.page ? parseInt(params.page) : 0
-    const limit = params.limit ? parseInt(params.limit) : 0
-    const sort = params.sort ? params.sort : 'created'
+    const { body } = ctx.request
+    const page = body.page ? parseInt(body.page) : 0
+    const limit = body.limit ? parseInt(body.limit) : 0
+    const sort = body.sort ? body.sort : 'created'
     const result = await UserModel.getList({}, sort, page, limit)
     const total = await UserModel.countList({})
     ctx.body = {
