@@ -389,22 +389,24 @@ class UserController {
 
   // 管理员删除用户,存在问题，删除用户应该把关联数据删除
   async deleteUserById (ctx) {
-    const params = ctx.query
-    const user = await UserModel.findOne({ _id: params.id })
-    if (user) {
-      const result = await UserModel.deleteOne({ _id: params.id })
-      ctx.body = {
-        code: 200,
-        msg: '删除成功',
-        data: result
-      }
-    } else {
-      ctx.body = {
-        code: 500,
-        msg: '用户不存在或者id信息错误',
-
-      }
+    // const params = ctx.query
+    const { body } = ctx.request
+    // const user = await UserModel.findOne({ _id: params.id })
+    const result = await UserModel.deleteMany({ _id: { $in: body.ids } })
+    ctx.body = {
+      code: 200,
+      msg: '删除成功',
+      data: result
     }
+    // if (user) {
+
+    // } else {
+    //   ctx.body = {
+    //     code: 500,
+    //     msg: '用户不存在或者id信息错误',
+
+    //   }
+    // }
   }
 
   // 管理员更新用户信息
@@ -475,6 +477,8 @@ class UserController {
   }
 
   // 异步校验用户名
+  // 这里前端可以判断是否修改然后再请求接口
+  // 而不是交由后端判断
   async checkUsername (ctx) {
     const params = ctx.query
     // 新增用户
@@ -534,6 +538,8 @@ class UserController {
   }
 
   // 异步校验昵称
+  // 这里前端可以判断是否修改然后再请求接口
+  // 而不是交由后端判断
   async checkName (ctx) {
     const params = ctx.query
     // 新增用户
