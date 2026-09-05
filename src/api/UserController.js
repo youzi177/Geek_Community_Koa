@@ -378,7 +378,8 @@ class UserController {
     const page = body.page ? parseInt(body.page) : 0
     const limit = body.limit ? parseInt(body.limit) : 0
     const sort = body.sort ? body.sort : 'created'
-    const result = await UserModel.getList({}, sort, page, limit)
+    const options = body.options || {}
+    const result = await UserModel.getList(options, sort, page, limit)
     const total = await UserModel.countList({})
     ctx.body = {
       code: 200,

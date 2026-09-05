@@ -54,8 +54,32 @@ UserSchema.statics = {
   },
   // 获取用户列表
   getList: function (options, sort, page, limit) {
+    // 1. datepicker -> item: string, search -> array  startitme,endtime
+    // 2. radio -> key-value $in
+    // 3. select -> key-array $in
+    let query = {}
+    if (typeof options.search !== 'undefined') {
+      if (typeof options.search === 'string' && options.search.trim() !== '') {
+        if (['name', 'username'].includes(options.item)) {
+          // 模糊匹配
+          query[options.item] = { $regex: new RegExp(options.search) }
+          // =》 { name: { $regex: /admin/ } } => mysql like %admin%
+        } else {
+          // radio
+          query[options.item] = options.search
+        }
+      }
+      if (options.item === 'roles') {
+        query = { roles: { $in: options.search } }
+      }
+      if (options.item === 'created') {
+        const start = options.search[0]
+        const end = options.search[1]
+        query = { created: { $gte: new Date(start), $lt: new Date(end) } }
+      }
+    }
     return this.find(
-      { ...options },
+      query,
       {
         // 不需要显示
         password: 0,
