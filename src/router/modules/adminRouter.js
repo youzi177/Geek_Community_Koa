@@ -1,7 +1,7 @@
 import Router from 'koa-router'
-// import adminController from '../../api/AdminController'
 import contentController from '../../api/ContentController'
 import UserController from '../../api/UserController'
+import adminController from '../../api/AdminController'
 const router = new Router()
 
 router.prefix('/admin')
@@ -31,4 +31,16 @@ router.get('/checkname', UserController.checkName)
 router.post('/add-user', UserController.addUser)
 // 批量设置用户
 router.post('/update-users-setting', UserController.updateUserBatchById)
+// 添加菜单
+router.post('/addMenu', adminController.addMenu)
+
+// 获取菜单
+router.get('/getMenu', adminController.getMenu)
+
+// 删除菜单
+router.post('/deleteMenu', adminController.deleteMenu)
+
+// 更新菜单
+router.post('/updateMenu', adminController.updateMenu)
+
 export default router

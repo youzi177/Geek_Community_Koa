@@ -66,4 +66,18 @@ const rename = (obj, key, newkey) => {
   }
   return obj
 }
-export { cheackCode, getJWTPayload, dirExists, rename }
+
+const sortObj = (arr, property) => {
+  return arr.sort((m, n) => m[property] - n[property])
+}
+const sortMenus = (tree) => {
+  tree = sortObj(tree, 'sort')
+  if (tree.children && tree.children.length > 0) {
+    tree.children = sortMenus(tree.children, 'sort')
+  }
+  if (tree.operations && tree.operations.length > 0) {
+    tree.operations = sortMenus(tree.operations, 'sort')
+  }
+  return tree
+}
+export { cheackCode, getJWTPayload, dirExists, rename, sortMenus }
