@@ -32,15 +32,15 @@ router.post('/add-user', UserController.addUser)
 // 批量设置用户
 router.post('/update-users-setting', UserController.updateUserBatchById)
 // 添加菜单
-router.post('/addMenu', adminController.addMenu)
+router.post('/add-menu', adminController.addMenu)
 
 // 获取菜单
-router.get('/getMenu', adminController.getMenu)
+router.get('/get-menu', adminController.getMenu)
 
 // 删除菜单
-router.post('/deleteMenu', adminController.deleteMenu)
+router.post('/delete-menu', adminController.deleteMenu)
 
 // 更新菜单
-router.post('/updateMenu', adminController.updateMenu)
+router.post('/update-menu', adminController.updateMenu)
 
 export default router
